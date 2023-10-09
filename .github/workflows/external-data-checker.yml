@@ -4,7 +4,7 @@ on:
     - cron: '0 * * * *'
 
 jobs:
-  flathub-data-checker-global:
+  synopkg-data-checker-global:
     runs-on: ubuntu-latest
     steps:
     - uses: synopkg/actions/synopkg-external-data-checker@master
