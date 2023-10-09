@@ -9,7 +9,7 @@ jobs:
   merge:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/flathub/actions/merge:latest
+      image: ghcr.io/synopkg/actions/merge:latest
     steps:
       - run: /entrypoint.py
         env:
