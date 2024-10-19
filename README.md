@@ -9,8 +9,8 @@
 <a aria-label="License" href="https://github.com/synopkg/synopkg/blob/main/LICENSE.md">
   <img alt="" src="https://img.shields.io/npm/l/@synopkg/synopkg.svg?style=flat-square&labelColor=000000">
 </a>
-<a aria-label="CI status" href="https://github.com/synopkg/synopkg/actions/workflows/quality.yml?query=event%3Apush+branch%3Amain">
-  <img alt="" src="https://img.shields.io/github/actions/workflow/status/synopkg/synopkg/quality.yml?event=push&branch=main&style=flat-square&labelColor=000000">
+<a aria-label="CI status" href="https://github.com/synopkg/synopkg/actions/workflows/test-site.yaml?query=event%3Apush+branch%3Amain">
+  <img alt="" src="https://img.shields.io/github/actions/workflow/status/synopkg/synopkg/test-site.yaml?event=push&branch=main&style=flat-square&labelColor=000000">
 </a>
 
 ## Installation
