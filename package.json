@@ -1,67 +1,9 @@
 {
   "name": "synopkg",
   "description": "Consistent dependency versions in large JavaScript Monorepos",
-  "version": "13.0.1",
-  "author": "GitWorkflows <dev.sulaiman@icloud.com> (https://github.com/synopkg)",
-  "bin": {
-    "synopkg": "dist/bin.js",
-    "synopkg-fix-mismatches": "dist/bin-fix-mismatches/index.js",
-    "synopkg-format": "dist/bin-format/index.js",
-    "synopkg-lint": "dist/bin-lint/index.js",
-    "synopkg-lint-semver-ranges": "dist/bin-lint-semver-ranges/index.js",
-    "synopkg-list": "dist/bin-list/index.js",
-    "synopkg-list-mismatches": "dist/bin-list-mismatches/index.js",
-    "synopkg-prompt": "dist/bin-prompt/index.js",
-    "synopkg-set-semver-ranges": "dist/bin-set-semver-ranges/index.js",
-    "synopkg-update": "dist/bin-update/index.js"
-  },
+  "version": "14.0.0-alpha.0",
+  "author": "synopkg <dev.sulaiman@icloud.com> (https://github.com/synopkg)",
   "bugs": "https://github.com/synopkg/synopkg/issues",
-  "dependencies": {
-    "@effect/schema": "0.75.5",
-    "chalk": "5.3.0",
-    "chalk-template": "1.1.0",
-    "commander": "12.1.0",
-    "cosmiconfig": "9.0.0",
-    "effect": "3.9.2",
-    "enquirer": "2.4.1",
-    "fast-check": "3.22.0",
-    "globby": "14.0.2",
-    "jsonc-parser": "3.3.1",
-    "minimatch": "10.0.1",
-    "npm-package-arg": "12.0.0",
-    "ora": "8.1.0",
-    "prompts": "2.4.2",
-    "read-yaml-file": "2.1.0",
-    "semver": "7.6.3",
-    "tightrope": "0.2.0",
-    "ts-toolbelt": "9.6.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "@release-it/conventional-changelog": "9.0.0",
-    "@tsconfig/node18": "18.2.4",
-    "@types/node": "22.7.7",
-    "@types/npm-package-arg": "6.1.4",
-    "@types/prompts": "2.4.9",
-    "@types/semver": "7.5.8",
-    "@vitest/coverage-v8": "2.1.3",
-    "auto-changelog": "2.5.0",
-    "memfs": "4.14.0",
-    "prettier": "3.3.3",
-    "prettier-plugin-astro": "0.14.1",
-    "release-it": "17.10.0",
-    "ts-node": "10.9.2",
-    "typescript": "5.6.3",
-    "typescript-json-schema": "0.65.1",
-    "vitest": "2.1.3"
-  },
-  "engines": {
-    "node": ">=18.18.0"
-  },
-  "exports": "./dist/index.js",
-  "files": [
-    "dist"
-  ],
   "homepage": "https://github.com/synopkg/synopkg#readme",
   "keywords": [
     "dependencies",
@@ -84,23 +26,5 @@
     "yarn"
   ],
   "license": "MIT",
-  "repository": "synopkg/synopkg",
-  "scripts": {
-    "build": "pnpm run clean && pnpm run build:source && pnpm run build:json-schema",
-    "build:json-schema": "typescript-json-schema --esModuleInterop --noExtraProps --ignoreErrors src/index.ts RcFile --out dist/schema.json",
-    "build:source": "tsc --project tsconfig.build.json",
-    "clean": "rm -rf ./dist",
-    "format": "pnpm run format:source && pnpm run format:astro",
-    "format:astro": "prettier --write site/src",
-    "format:source": "biome check --write --unsafe",
-    "lint": "npm run lint:source && npm run lint:engines",
-    "lint:engines": "node scripts/check-engines.mjs",
-    "lint:source": "biome check && tsc --noEmit",
-    "prepack": "pnpm run build",
-    "release": "release-it",
-    "test": "vitest run --coverage src",
-    "test:watch": "vitest run --no-coverage --watch"
-  },
-  "type": "module",
-  "types": "./dist/index.d.ts"
+  "repository": "synopkg/synopkg"
 }
