@@ -6,7 +6,7 @@
 <a aria-label="NPM version" href="https://www.npmjs.com/package/@synopkg/synopkg">
   <img alt="" src="https://img.shields.io/npm/v/@synopkg/synopkg.svg?style=flat-square&labelColor=000000">
 </a>
-<a aria-label="License" href="https://github.com/synopkg/synopkg/blob/canary/LICENSE.md">
+<a aria-label="License" href="https://github.com/synopkg/synopkg/blob/main/LICENSE.md">
   <img alt="" src="https://img.shields.io/npm/l/@synopkg/synopkg.svg?style=flat-square&labelColor=000000">
 </a>
 <a aria-label="CI status" href="https://github.com/synopkg/synopkg/actions/workflows/quality.yml?query=event%3Apush+branch%3Amain">
