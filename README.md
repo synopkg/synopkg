@@ -53,9 +53,3 @@ Ensure dependency versions used within `"dependencies"`, `"devDependencies"` etc
 ### [update](https://synopkg.github.io/synopkg/command/update)
 
 Interactively update packages to the latest versions from the npm registry, wherever they are in your monorepo. You can update every dependency, just dev/peer/prod dependencies, just packages which match a name filter, and more.
-
-## Badges
-
-- [![NPM version](http://img.shields.io/npm/v/synopkg.svg?style=flat-square)](https://www.npmjs.com/package/synopkg)
-- [![NPM downloads](http://img.shields.io/npm/dm/synopkg.svg?style=flat-square)](https://www.npmjs.com/package/synopkg)
-- [![Build Status](https://img.shields.io/github/actions/workflow/status/synopkg/synopkg/ci.yaml?branch=main)](https://github.com/synopkg/synopkg/actions)
