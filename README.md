@@ -3,8 +3,8 @@
 <a aria-label="synopkg logo" href="https://synopkg.github.io/synopkg">
   <img alt="" src="https://img.shields.io/badge/Made%20by%20synopkg-000000.svg?style=flat-square&logo=synopkg&labelColor=000">
 </a>
-<a aria-label="NPM version" href="https://www.npmjs.com/package/@synopkg/synopkg">
-  <img alt="" src="https://img.shields.io/npm/v/@synopkg/synopkg.svg?style=flat-square&labelColor=000000">
+<a aria-label="NPM version" href="https://www.npmjs.com/package/synopkg">
+  <img alt="" src="https://img.shields.io/npm/v/synopkg.svg?style=flat-square&labelColor=000000">
 </a>
 <a aria-label="License" href="https://github.com/synopkg/synopkg/blob/main/LICENSE.md">
   <img alt="" src="https://img.shields.io/npm/l/@synopkg/synopkg.svg?style=flat-square&labelColor=000000">
