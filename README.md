@@ -1,10 +1,17 @@
-# synopkg
+# Synopkg JavaScript Monorepos.
 
-<p align="center">
-  <img src="https://synopkg.github.io/synopkg/logo.svg" width="200" height="179" alt="">
-  <br>Consistent dependency versions in large JavaScript Monorepos.
-  <br><a href="https://synopkg.github.io/synopkg">https://synopkg.github.io/synopkg</a>
-</p>
+<a aria-label="synopkg logo" href="https://synopkg.github.io/synopkg">
+  <img alt="" src="https://img.shields.io/badge/Made%20by%20synopkg-000000.svg?style=flat-square&logo=synopkg&labelColor=000">
+</a>
+<a aria-label="NPM version" href="https://www.npmjs.com/package/@synopkg/synopkg">
+  <img alt="" src="https://img.shields.io/npm/v/@synopkg/synopkg.svg?style=flat-square&labelColor=000000">
+</a>
+<a aria-label="License" href="https://github.com/synopkg/synopkg/blob/canary/LICENSE.md">
+  <img alt="" src="https://img.shields.io/npm/l/@synopkg/synopkg.svg?style=flat-square&labelColor=000000">
+</a>
+<a aria-label="CI status" href="https://github.com/synopkg/synopkg/actions/workflows/quality.yml?query=event%3Apush+branch%3Amain">
+  <img alt="" src="https://img.shields.io/github/actions/workflow/status/synopkg/synopkg/quality.yml?event=push&branch=main&style=flat-square&labelColor=000000">
+</a>
 
 ## Installation
 
@@ -52,7 +59,6 @@ Interactively update packages to the latest versions from the npm registry, wher
 
 ## Badges
 
-- [![support on ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/C0C4PY4P)
 - [![NPM version](http://img.shields.io/npm/v/synopkg.svg?style=flat-square)](https://www.npmjs.com/package/synopkg)
 - [![NPM downloads](http://img.shields.io/npm/dm/synopkg.svg?style=flat-square)](https://www.npmjs.com/package/synopkg)
 - [![Build Status](https://img.shields.io/github/actions/workflow/status/synopkg/synopkg/ci.yaml?branch=main)](https://github.com/synopkg/synopkg/actions)
