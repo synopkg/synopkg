@@ -1,29 +1,60 @@
 /* Dark mode colors. */
 :root {
-  --sl-color-accent-low: #072d00;
-  --sl-color-accent: #247f00;
-  --sl-color-accent-high: #aad7a0;
-  --sl-color-white: #ffffff;
-  --sl-color-gray-1: #eaf0e8;
-  --sl-color-gray-2: #bdc4bb;
-  --sl-color-gray-3: #82907f;
-  --sl-color-gray-4: #4f5c4d;
-  --sl-color-gray-5: #303c2d;
-  --sl-color-gray-6: #1f2a1c;
-  --sl-color-black: #151a13;
+  --sl-color-accent-low: hsl(120, 100%, 9%); /* Similar to #072d00 */
+  --sl-color-accent: hsl(120, 75%, 25%); /* Similar to #247f00 */
+  --sl-color-accent-high: hsl(120, 50%, 85%); /* Similar to #aad7a0 */
+  --sl-color-white: hsl(0, 0%, 100%); /* Similar to #ffffff */
+  --sl-color-gray-1: hsl(120, 20%, 92%); /* Similar to #eaf0e8 */
+  --sl-color-gray-2: hsl(120, 10%, 75%); /* Similar to #bdc4bb */
+  --sl-color-gray-3: hsl(120, 10%, 50%); /* Similar to #82907f */
+  --sl-color-gray-4: hsl(120, 15%, 35%); /* Similar to #4f5c4d */
+  --sl-color-gray-5: hsl(120, 20%, 25%); /* Similar to #303c2d */
+  --sl-color-gray-6: hsl(120, 25%, 15%); /* Similar to #1f2a1c */
+  --sl-color-black: hsl(120, 30%, 10%); /* Similar to #151a13 */
 }
+
 /* Light mode colors. */
 :root[data-theme='light'] {
-  --sl-color-accent-low: #c0e2b8;
-  --sl-color-accent: #258100;
-  --sl-color-accent-high: #0d3e00;
-  --sl-color-white: #151a13;
-  --sl-color-gray-1: #1f2a1c;
-  --sl-color-gray-2: #303c2d;
-  --sl-color-gray-3: #4f5c4d;
-  --sl-color-gray-4: #82907f;
-  --sl-color-gray-5: #bdc4bb;
-  --sl-color-gray-6: #eaf0e8;
-  --sl-color-gray-7: #f4f7f3;
-  --sl-color-black: #ffffff;
+  --sl-color-accent-low: hsl(120, 25%, 85%); /* Similar to #c0e2b8 */
+  --sl-color-accent: hsl(120, 100%, 25%); /* Similar to #258100 */
+  --sl-color-accent-high: hsl(120, 100%, 15%); /* Similar to #0d3e00 */
+  --sl-color-white: hsl(120, 30%, 10%); /* Similar to #151a13 */
+  --sl-color-gray-1: hsl(120, 25%, 15%); /* Similar to #1f2a1c */
+  --sl-color-gray-2: hsl(120, 20%, 25%); /* Similar to #303c2d */
+  --sl-color-gray-3: hsl(120, 15%, 35%); /* Similar to #4f5c4d */
+  --sl-color-gray-4: hsl(120, 10%, 50%); /* Similar to #82907f */
+  --sl-color-gray-5: hsl(120, 10%, 75%); /* Similar to #bdc4bb */
+  --sl-color-gray-6: hsl(120, 20%, 92%); /* Similar to #eaf0e8 */
+  --sl-color-gray-7: hsl(120, 25%, 97%); /* Similar to #f4f7f3 */
+  --sl-color-black: hsl(0, 0%, 100%); /* Similar to #ffffff */
+}
+
+/* Dark mode color system using the second set of variables. */
+.dark {
+  --fd-background: hsl(0, 0%, 3.9%);
+  --fd-foreground: hsl(0, 0%, 94%);
+  --fd-muted: hsl(0, 0%, 12.9%);
+  --fd-muted-foreground: hsl(0, 0%, 60.9%);
+  --fd-popover: hsl(0, 0%, 7%);
+  --fd-popover-foreground: hsl(0, 0%, 88%);
+  --fd-card: hsl(0, 0%, 6%);
+  --fd-card-foreground: hsl(0, 0%, 98%);
+  --fd-border: hsl(0, 0%, 18%);
+  --fd-primary: hsl(0, 0%, 98%);
+  --fd-primary-foreground: hsl(0, 0%, 9%);
+  --fd-secondary: hsl(0, 0%, 12.9%);
+  --fd-secondary-foreground: hsl(0, 0%, 98%);
+  --fd-accent: hsl(0, 0%, 12.9%);
+  --fd-accent-foreground: hsl(0, 0%, 98%);
+  --fd-ring: hsl(0, 0%, 14.9%);
+}
+
+/* General styles using the color variables. */
+* {
+  border-color: hsl(var(--fd-border) / 1);
+}
+
+body {
+  background-color: hsl(var(--fd-background) / 1);
+  color: hsl(var(--fd-foreground) / 1);
 }
