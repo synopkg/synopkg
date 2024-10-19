@@ -1,0 +1,13 @@
+import { Code } from 'astro:components';
+
+Override your [specifierTypes](/synopkg/config/specifier-types) configuration to run <code>{`synopkg ${props.command}`}</code> against dependency instances with version specifiers of the given types, such as `exact`, `range`, or `workspace-protocol`.
+
+<Code
+  code={`# only include exact versions
+synopkg ${props.command} --specs 'exact'
+# only include latest and range versions
+synopkg ${props.command} --specs 'latest,range'
+# exclude unsupported versions
+synopkg ${props.command} --specs '!unsupported'`}
+  lang="bash"
+/>

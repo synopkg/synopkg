@@ -1,0 +1,66 @@
+---
+title: Ignored
+---
+
+import RequiredPill from '@site/components/pill/required.astro';
+import Packages from '@site/partials/group-config/_packages.mdx';
+import Dependencies from '@site/partials/group-config/_dependencies.mdx';
+import DependencyTypes from '@site/partials/group-config/_dependency-types.mdx';
+import SpecifierTypes from '@site/partials/group-config/_specifier-types.mdx';
+import Label from '@site/partials/group-config/_label.mdx';
+import Example from '@site/partials/examples/_ignore-deps.mdx';
+import Details from '@site/components/details.astro';
+
+Have synopkg ignore the versions of these dependencies completely.
+
+## Examples
+
+<Details title="Example: Ignore one or more dependencies">
+
+  <Example level="h3" />
+</Details>
+
+## Configuration
+
+<RequiredPill>
+  {/**/}
+  ### isIgnored
+</RequiredPill>
+
+This property activates this behaviour for a given Version Group.
+
+```json title=".synopkgrc"
+{
+  "versionGroups": [
+    {
+      "dependencies": ["keep-walking"],
+      "isIgnored": true
+    }
+  ]
+}
+```
+
+<Dependencies>
+  {/**/}
+  ### dependencies
+</Dependencies>
+
+<DependencyTypes>
+  {/**/}
+  ### dependencyTypes
+</DependencyTypes>
+
+<SpecifierTypes>
+  {/**/}
+  ### specifierTypes
+</SpecifierTypes>
+
+<Label>
+  {/**/}
+  ### label
+</Label>
+
+<Packages>
+  {/**/}
+  ### packages
+</Packages>

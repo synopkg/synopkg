@@ -1,0 +1,72 @@
+---
+title: Banned
+---
+
+import BanAlwaysExample from '@site/partials/examples/_ban-always.mdx';
+import BanTypesExample from '@site/partials/examples/_ban-types.mdx';
+import Dependencies from '@site/partials/group-config/_dependencies.mdx';
+import DependencyTypes from '@site/partials/group-config/_dependency-types.mdx';
+import SpecifierTypes from '@site/partials/group-config/_specifier-types.mdx';
+import Label from '@site/partials/group-config/_label.mdx';
+import Packages from '@site/partials/group-config/_packages.mdx';
+import RequiredPill from '@site/components/pill/required.astro';
+import Details from '@site/components/details.astro';
+
+Find and remove dependencies which you've decided should never be used.
+
+## Examples
+
+<Details title="Example: Completely ban a dependency from being used">
+
+  <BanAlwaysExample level="h3" />
+</Details>
+
+<Details title="Example: Ensure `@types` are only installed as `devDependencies`">
+
+  <BanTypesExample level="h3" />
+</Details>
+
+## Configuration
+
+<RequiredPill>
+  {/**/}
+  ### isBanned
+</RequiredPill>
+
+This property activates this behaviour for a given Version Group.
+
+```json title=".synopkgrc"
+{
+  "versionGroups": [
+    {
+      "dependencies": ["never-gonna"],
+      "isBanned": true
+    }
+  ]
+}
+```
+
+<Dependencies>
+  {/**/}
+  ### dependencies
+</Dependencies>
+
+<DependencyTypes>
+  {/**/}
+  ### dependencyTypes
+</DependencyTypes>
+
+<SpecifierTypes>
+  {/**/}
+  ### specifierTypes
+</SpecifierTypes>
+
+<Label>
+  {/**/}
+  ### label
+</Label>
+
+<Packages>
+  {/**/}
+  ### packages
+</Packages>
