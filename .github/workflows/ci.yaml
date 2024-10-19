@@ -11,18 +11,20 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: [18.18.0, 20.x, 22.x]
+        node-version: [18, 20, 22]  # Use major versions for clarity
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 8
-      - name: Use Node.js ${{ matrix.node-version }}
+
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           cache: 'pnpm'
           node-version: ${{ matrix.node-version }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8  # Keep the pnpm version here
 
       - name: Install
         run: pnpm install
@@ -38,7 +40,7 @@ jobs:
         run: ./test/smoke.sh
 
       - name: Lint
-        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20'
         run: pnpm run lint
         env:
           FORCE_COLOR: 3
