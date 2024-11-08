@@ -23,12 +23,7 @@ const unsatisfiedDependencies = globbySync('node_modules/**/package.json')
   })
   .filter(result => !result.isSatisfied);
 
-if (unsatisfiedDependencies.length) {
-  console.error(
-    'The following dependencies have incompatible engines:',
-    unsatisfiedDependencies,
-  );
+if (unsatisfiedDependencies.length > 0) {
   process.exit(1);
 } else {
-  console.info('All dependencies have compatible engines.');
 }
