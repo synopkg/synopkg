@@ -93,7 +93,7 @@
     "format": "pnpm run format:source && pnpm run format:astro",
     "format:astro": "prettier --write site/src",
     "format:source": "biome check --write --unsafe",
-    "lint": "npm run lint:source && npm run lint:engines",
+    "": "npm run lint:source && npm run lint:engines",
     "lint:engines": "node scripts/check-engines.mjs",
     "lint:source": "biome check && tsc --noEmit",
     "prepack": "pnpm run build",
