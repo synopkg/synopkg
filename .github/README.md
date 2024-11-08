@@ -66,7 +66,7 @@ It's thanks to the support of the community that this project is able to be free
 
 ### Contributors
 
-Credit to the following users for contributing to Web-Scan
+Credit to the following users for contributing to Synopkg
 
 <!-- readme: contributors -start -->
 <table>
@@ -100,4 +100,4 @@ Credit to the following users for contributing to Web-Scan
 
 ### Sponsors
 
-Huge thanks to these wonderful people, who sponsor me on GitHub, their support helps cover the costs required to keep Web-Scan and my other projects free for everyone. Consider joining them, by [sponsoring me on GitHub](https://github.com/sponsors/khulnasoft) if you're able.
+Huge thanks to these wonderful people, who sponsor me on GitHub, their support helps cover the costs required to keep Synopkg and my other projects free for everyone. Consider joining them, by [sponsoring me on GitHub](https://github.com/sponsors/khulnasoft) if you're able.
