@@ -53,3 +53,24 @@ Ensure dependency versions used within `"dependencies"`, `"devDependencies"` etc
 ### [update](https://synopkg.github.io/synopkg/command/update)
 
 Interactively update packages to the latest versions from the npm registry, wherever they are in your monorepo. You can update every dependency, just dev/peer/prod dependencies, just packages which match a name filter, and more.
+
+### Supporting
+
+The app will remain 100% free and open source.
+But due to the amount of traffic that the hosted instance gets, the lambda function usage is costing about $25/month.
+Any help with covering the costs via GitHub Sponsorship would be much appreciated.
+It's thanks to the support of the community that this project is able to be freely available for everyone :)
+
+[![Sponsor khulnasoft on GitHub](https://img.shields.io/badge/Sponsor_on_GitHub-khulnasoft-%23ff4dda?style=for-the-badge&logo=githubsponsors&logoColor=ff4dda)](https://github.com/sponsors/khulnasoft)
+
+
+### Contributors
+
+Credit to the following users for contributing to Web-Scan
+
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
+
+### Sponsors
+
+Huge thanks to these wonderful people, who sponsor me on GitHub, their support helps cover the costs required to keep Web-Scan and my other projects free for everyone. Consider joining them, by [sponsoring me on GitHub](https://github.com/sponsors/khulnasoft) if you're able.
