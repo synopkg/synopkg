@@ -69,6 +69,33 @@ It's thanks to the support of the community that this project is able to be free
 Credit to the following users for contributing to Web-Scan
 
 <!-- readme: contributors -start -->
+<table>
+	<tbody>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/NxPKG">
+                    <img src="https://avatars.githubusercontent.com/u/116948796?v=4" width="80;" alt="NxPKG"/>
+                    <br />
+                    <sub><b>NxPKG</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/khulnasoft-bot">
+                    <img src="https://avatars.githubusercontent.com/u/43526132?v=4" width="80;" alt="khulnasoft-bot"/>
+                    <br />
+                    <sub><b>KhulnaSoft bot</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/gitworkflows">
+                    <img src="https://avatars.githubusercontent.com/u/118260833?v=4" width="80;" alt="gitworkflows"/>
+                    <br />
+                    <sub><b>gitworkflows</b></sub>
+                </a>
+            </td>
+		</tr>
+	<tbody>
+</table>
 <!-- readme: contributors -end -->
 
 ### Sponsors
