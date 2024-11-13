@@ -1,0 +1,5 @@
+# PR labels and the branch patterns they should be auto-assigned to
+✨ New Feature: ['FEATURE/*', 'FEAT/*']
+🚚 Refactor: ['IMPROVMENTS/*', 'REFACTOR/*']
+🦋 Bug Fix: ['FIX/*', 'HOT-FIX/*', 'BUG-FIX/*']
+🦀 Rust Dev: ['RUST/*', 'DEV/*']
