@@ -24,7 +24,7 @@ install-system-dependencies:
 
 # Fix formatting, indentation etc of all files
 format:
-    cargo fmt --all -- --verbose
+    cargo +nightly fmt --all -- --verbose
     cargo clippy --fix --allow-dirty
 
 # Update dependencies in Cargo.toml and Cargo.lock
@@ -110,7 +110,7 @@ run-fluid:
     set -euxo pipefail
 
     cd fixtures/fluid-framework
-    RUST_BACKTRACE=1 cargo run -- lint --format --versions
+    RUST_BACKTRACE=1 cat .synopkgrc.json | jq -cM | cargo run -- lint
 
 # Run the release rust binary against a clone of microsoft/FluidFramework
 run-fluid-prod:
@@ -118,16 +118,46 @@ run-fluid-prod:
     set -euxo pipefail
 
     cd fixtures/fluid-framework
-    ../../target/release/synopkg lint --versions --source 'package.json' --source 'packages/**/package.json'
+    ../../target/release/synopkg lint
 
 # Watch lint output during dev
 watch-fluid:
     #!/usr/bin/env bash
-    cargo watch --clear --shell 'cd fixtures/fluid-framework && RUST_BACKTRACE=1 cargo run -- lint --versions --format'
+    tput rmam && cargo watch --clear --shell 'cd fixtures/fluid-framework && RUST_BACKTRACE=1 cargo run -- lint'
 
 # ==============================================================================
 # Build
 # ==============================================================================
+
+# Build the npm package and rust binary package for mac
+build-local:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    rm -rf npm/packages
+    cargo build --release --locked --target x86_64-apple-darwin
+    just --dotenv-filename .env.darwin-x64 create-npm-binary-package
+    just --dotenv-filename .env.darwin-x64 create-npm-root-package
+    just patch-local
+    cd npm/packages/synopkg
+    npm install
+
+# Modify the local package.json file to only have a mac optionalDependency
+patch-local:
+    #!/usr/bin/env node
+    const fs = require("fs");
+    const path = require("path");
+    const srcPath = path.resolve("npm/packages/synopkg/package.json");
+    const pkg = require(srcPath);
+    const nextPkg = {
+        ...pkg,
+        optionalDependencies: {
+            "synopkg-darwin-x64": "file:../synopkg-darwin-x64"
+        }
+    };
+    const json = JSON.stringify(nextPkg, null, 2);
+    console.log(json);
+    fs.writeFileSync(srcPath, json);
 
 # Build a rust binary and corresponding npm package for a specific target
 build-binary-package:
@@ -148,7 +178,7 @@ create-npm-binary-package:
 
     rm -rf "$NODE_PKG_DIR_PATH"
     mkdir -p "$NODE_PKG_DIR_PATH/bin"
-    mv "$RUST_BINARY_PATH" "$NODE_PKG_RUST_BINARY_PATH"
+    cp "$RUST_BINARY_PATH" "$NODE_PKG_RUST_BINARY_PATH"
     cp README.md "$NODE_PKG_DIR_PATH/README.md"
     just create-npm-binary-package-json
 
@@ -162,9 +192,15 @@ create-npm-binary-package-json:
     const pkg = require(srcPath);
     const nextPkg = {
         ...pkg,
-        name: process.env.NODE_PKG_NAME,
         bin: undefined,
+        contributors: undefined,
+        dependencies: undefined,
+        devDependencies: undefined,
+        engines: undefined,
+        keywords: undefined,
         optionalDependencies: undefined,
+        name: process.env.NODE_PKG_NAME,
+        description: `Rust Binary for ${process.env.NODE_OS} ${process.env.NODE_ARCH}`,
         os: [process.env.NODE_OS],
         cpu: [process.env.NODE_ARCH],
     };
@@ -181,7 +217,16 @@ create-npm-root-package:
     mkdir -p "$NODE_ROOT_PKG_DIR_PATH"
     cp README.md "$NODE_ROOT_PKG_DIR_PATH/README.md"
     cp npm/index.js "$NODE_ROOT_PKG_DIR_PATH/index.js"
+    just build-npm-types
     just create-npm-root-package-json
+
+# Generate TypeScript and JSON schema types
+build-npm-types:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    npm exec tsc -- --declaration --emitDeclarationOnly --outDir "$NODE_ROOT_PKG_DIR_PATH" npm/synopkg.ts
+    npm exec ts-json-schema-generator -- --path 'npm/synopkg.ts' --type 'RcFile' --jsDoc extended --validation-keywords see --out "$NODE_ROOT_PKG_DIR_PATH/schema.json"
 
 # Create the package.json file for the parent npm package
 create-npm-root-package-json:
@@ -193,8 +238,7 @@ create-npm-root-package-json:
     const pkg = require(srcPath);
     const nextPkg = {
         ...pkg,
-        os: undefined,
-        cpu: undefined,
+        devDependencies: undefined,
         bin: {
           synopkg: "./index.js",
         },
@@ -206,6 +250,7 @@ create-npm-root-package-json:
           "synopkg-windows-x64": pkg.version,
           "synopkg-windows-arm64": pkg.version,
         },
+        types: './synopkg.d.ts',
     };
     const json = JSON.stringify(nextPkg, null, 2);
     console.log(json);
@@ -221,7 +266,7 @@ publish-npm-binary-package:
     set -euxo pipefail
 
     cd "$NODE_PKG_DIR_PATH"
-    npm publish --dry-run --access public --tag alpha
+    npm publish --access public --tag alpha
 
 # Publish the parent npm package
 publish-npm-root-package:
@@ -229,4 +274,4 @@ publish-npm-root-package:
     set -euxo pipefail
 
     cd "$NODE_ROOT_PKG_DIR_PATH"
-    npm publish --dry-run --access public --tag alpha
+    npm publish --access public --tag alpha

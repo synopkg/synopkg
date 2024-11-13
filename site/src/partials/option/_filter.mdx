@@ -1,0 +1,12 @@
+import { Code } from 'astro:components';
+
+Only run <code>{`synopkg ${props.command}`}</code> on dependencies whose names match the given string, which will be passed to `new RegExp()`.
+
+<Code
+  code={`# only include react, react-dom, preact etc
+synopkg ${props.command} --filter 'react'
+# only include typescript or eslint packages
+synopkg ${props.command} --filter 'typescript|eslint'`}
+  lang="bash"
+
+/>

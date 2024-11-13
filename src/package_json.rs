@@ -1,9 +1,10 @@
-use log::error;
-use serde::Serialize;
-use serde_json::{ser::PrettyFormatter, Serializer, Value};
-use std::{cell::RefCell, fs, path::PathBuf, rc::Rc};
-
-use crate::{config::Config, dependency_type::Strategy, instance::Instance};
+use {
+  crate::{config::Config, dependency_type::Strategy, instance::Instance},
+  log::error,
+  serde::Serialize,
+  serde_json::{ser::PrettyFormatter, Serializer, Value},
+  std::{cell::RefCell, fs, path::PathBuf, rc::Rc},
+};
 
 #[derive(Debug)]
 pub struct PackageJson {
@@ -59,7 +60,7 @@ impl PackageJson {
       .and_then(|json| {
         serde_json::from_str(&json)
           .inspect_err(|_| {
-            error!("file is not valid JSON at {}", &file_path.to_str().unwrap());
+            error!("Invalid JSON: {}", &file_path.to_str().unwrap());
           })
           .map(|contents: Value| Self {
             file_path: file_path.clone(),
@@ -113,7 +114,7 @@ impl PackageJson {
   /// Update this package in-memory with the given instance's specifier
   pub fn copy_expected_specifier(&self, instance: &Instance) {
     let path_to_prop_str = &instance.dependency_type.path.as_str();
-    let raw_specifier = instance.expected_specifier.borrow().as_ref().unwrap().unwrap().clone();
+    let raw_specifier = instance.expected_specifier.borrow().as_ref().unwrap().get_raw().clone();
     match instance.dependency_type.strategy {
       Strategy::NameAndVersionProps => {
         self.set_prop(path_to_prop_str, Value::String(raw_specifier));
@@ -141,7 +142,7 @@ impl PackageJson {
   /// Serialize the parsed JSON object back into pretty JSON as bytes
   pub fn serialize(&self, indent: &str) -> Vec<u8> {
     // Create a pretty JSON formatter
-    let indent_with_fixed_tabs = &indent.replace("\\t", "\t");
+    let indent_with_fixed_tabs = &indent.replace("\\t", "	");
     let formatter = PrettyFormatter::with_indent(indent_with_fixed_tabs.as_bytes());
     let buffer = Vec::new();
     let mut serializer = Serializer::with_formatter(buffer, formatter);

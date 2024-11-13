@@ -1,10 +1,9 @@
-use log::warn;
-use serde::Deserialize;
-use std::{cell::RefCell, collections::BTreeMap, rc::Rc, vec};
-
-use crate::{
-  dependency::Dependency, group_selector::GroupSelector, instance::Instance, package_json::PackageJson, packages::Packages,
-  specifier::Specifier,
+use {
+  crate::{cli::SortBy, dependency::Dependency, group_selector::GroupSelector, instance::Instance, package_json::PackageJson, packages::Packages, specifier::Specifier},
+  itertools::Itertools,
+  log::warn,
+  serde::Deserialize,
+  std::{cell::RefCell, collections::BTreeMap, rc::Rc, vec},
 };
 
 /// What behaviour has this group been configured to exhibit?
@@ -23,11 +22,14 @@ pub enum VersionGroupVariant {
 pub struct VersionGroup {
   /// Group instances of each dependency together for comparison.
   pub dependencies: RefCell<BTreeMap<String, Dependency>>,
+  /// Does every instance match the filter options provided via the CLI?
+  pub matches_cli_filter: RefCell<bool>,
   /// The version to pin all instances to when variant is `Pinned`
   pub pin_version: Option<Specifier>,
   /// Data to determine which instances should be added to this group
   pub selector: GroupSelector,
-  /// package.json files whose names match the `snapTo` config when variant is `SnappedTo`
+  /// package.json files whose names match the `snapTo` config when variant is
+  /// `SnappedTo`
   pub snap_to: Option<Vec<Rc<RefCell<PackageJson>>>>,
   /// What behaviour has this group been configured to exhibit?
   pub variant: VersionGroupVariant,
@@ -38,29 +40,37 @@ impl VersionGroup {
   pub fn get_catch_all() -> VersionGroup {
     VersionGroup {
       dependencies: RefCell::new(BTreeMap::new()),
+      matches_cli_filter: RefCell::new(false),
       pin_version: None,
       selector: GroupSelector::new(
-        /*include_dependencies:*/ vec![],
-        /*include_dependency_types:*/ vec![],
-        /*label:*/ "Default Version Group".to_string(),
-        /*include_packages:*/ vec![],
-        /*include_specifier_types:*/ vec![],
+        /* include_dependencies: */ vec![],
+        /* include_dependency_types: */ vec![],
+        /* label: */ "Default Version Group".to_string(),
+        /* include_packages: */ vec![],
+        /* include_specifier_types: */ vec![],
       ),
       snap_to: None,
       variant: VersionGroupVariant::HighestSemver,
     }
   }
 
-  pub fn add_instance(&self, instance: Rc<Instance>) {
+  pub fn add_instance(&self, instance: Rc<Instance>, cli_filter: &Option<GroupSelector>) {
     let mut dependencies = self.dependencies.borrow_mut();
     let dependency = dependencies.entry(instance.name.clone()).or_insert_with(|| {
       Dependency::new(
-        /*name:*/ instance.name.clone(),
-        /*variant:*/ self.variant.clone(),
-        /*pin_version:*/ self.pin_version.clone(),
-        /*snap_to:*/ self.snap_to.clone(),
+        /* name: */ instance.name.clone(),
+        /* variant: */ self.variant.clone(),
+        /* pin_version: */ self.pin_version.clone(),
+        /* snap_to: */ self.snap_to.clone(),
       )
     });
+    if let Some(cli_group) = cli_filter {
+      if cli_group.can_add(&instance) {
+        *self.matches_cli_filter.borrow_mut() = true;
+        *dependency.matches_cli_filter.borrow_mut() = true;
+        *instance.matches_cli_filter.borrow_mut() = true;
+      }
+    }
     dependency.add_instance(Rc::clone(&instance));
     std::mem::drop(dependencies);
   }
@@ -68,17 +78,18 @@ impl VersionGroup {
   /// Create a single version group from a config item from the rcfile.
   pub fn from_config(group: &AnyVersionGroup, packages: &Packages) -> VersionGroup {
     let selector = GroupSelector::new(
-      /*include_dependencies:*/
+      /* include_dependencies: */
       with_resolved_keywords(&group.dependencies, packages),
-      /*include_dependency_types:*/ group.dependency_types.clone(),
-      /*label:*/ group.label.clone(),
-      /*include_packages:*/ group.packages.clone(),
-      /*include_specifier_types:*/ group.specifier_types.clone(),
+      /* include_dependency_types: */ group.dependency_types.clone(),
+      /* label: */ group.label.clone(),
+      /* include_packages: */ group.packages.clone(),
+      /* include_specifier_types: */ group.specifier_types.clone(),
     );
 
     if let Some(true) = group.is_banned {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
+        matches_cli_filter: RefCell::new(false),
         pin_version: None,
         selector,
         snap_to: None,
@@ -88,6 +99,7 @@ impl VersionGroup {
     if let Some(true) = group.is_ignored {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
+        matches_cli_filter: RefCell::new(false),
         pin_version: None,
         selector,
         snap_to: None,
@@ -97,6 +109,7 @@ impl VersionGroup {
     if let Some(pin_version) = &group.pin_version {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
+        matches_cli_filter: RefCell::new(false),
         pin_version: Some(Specifier::new(pin_version)),
         selector,
         snap_to: None,
@@ -107,6 +120,7 @@ impl VersionGroup {
       if policy == "sameRange" {
         return VersionGroup {
           dependencies: RefCell::new(BTreeMap::new()),
+          matches_cli_filter: RefCell::new(false),
           pin_version: None,
           selector,
           snap_to: None,
@@ -120,21 +134,18 @@ impl VersionGroup {
     if let Some(snap_to) = &group.snap_to {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
+        matches_cli_filter: RefCell::new(false),
         pin_version: None,
         selector,
         snap_to: Some(
           snap_to
             .iter()
             .flat_map(|name| {
-              packages
-                .by_name
-                .get(name)
-                .or_else(|| {
-                  // @FIXME: show user friendly error message and exit with error code
-                  warn!("Invalid Snapped To Version Group: No package.json file found with a name property of '{name}'");
-                  None
-                })
-                .map(Rc::clone)
+              packages.get_by_name(name).or_else(|| {
+                // @FIXME: show user friendly error message and exit with error code
+                warn!("Invalid Snapped To Version Group: No package.json file found with a name property of '{name}'");
+                None
+              })
             })
             .collect(),
         ),
@@ -144,22 +155,35 @@ impl VersionGroup {
     if let Some(prefer_version) = &group.prefer_version {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
+        matches_cli_filter: RefCell::new(false),
         pin_version: None,
         selector,
         snap_to: None,
-        variant: if prefer_version == "lowestSemver" {
-          VersionGroupVariant::LowestSemver
-        } else {
-          VersionGroupVariant::HighestSemver
-        },
+        variant: if prefer_version == "lowestSemver" { VersionGroupVariant::LowestSemver } else { VersionGroupVariant::HighestSemver },
       };
     }
     VersionGroup {
       dependencies: RefCell::new(BTreeMap::new()),
+      matches_cli_filter: RefCell::new(false),
       pin_version: None,
       selector,
       snap_to: None,
       variant: VersionGroupVariant::HighestSemver,
+    }
+  }
+
+  /// Iterate over each dependency in the provided order
+  pub fn for_each_dependency<F>(&self, sort: &SortBy, f: F)
+  where
+    F: Fn(&Dependency),
+  {
+    match sort {
+      SortBy::Count => {
+        self.dependencies.borrow().values().sorted_by(|a, b| b.instances.borrow().len().cmp(&a.instances.borrow().len())).for_each(f);
+      }
+      SortBy::Name => {
+        self.dependencies.borrow().values().for_each(f);
+      }
     }
   }
 }
@@ -199,12 +223,14 @@ fn with_resolved_keywords(dependency_names: &[String], packages: &Packages) -> V
   for dependency_name in dependency_names.iter() {
     match dependency_name.as_str() {
       "$LOCAL" => {
-        for package_name in packages.by_name.keys() {
-          resolved_dependencies.push(package_name.clone());
+        for package in packages.all.iter() {
+          let package_name = package.borrow().get_name_unsafe();
+          resolved_dependencies.push(package_name);
         }
       }
       "!$LOCAL" => {
-        for package_name in packages.by_name.keys() {
+        for package in packages.all.iter() {
+          let package_name = package.borrow().get_name_unsafe();
           resolved_dependencies.push(format!("!{}", package_name));
         }
       }

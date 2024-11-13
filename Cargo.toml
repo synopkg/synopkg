@@ -3,7 +3,7 @@ name = "synopkg"
 version = "14.0.0-alpha.0"
 authors = ["synopkg <dev.sulaiman@icloud.com>"]
 edition = "2021"
-homepage = "https://jamiemason.github.io/synopkg"
+homepage = "https://synopkg.github.io/synopkg"
 repository = "https://github.com/synopkg/synopkg/tree/rust/main"
 description = "Consistent dependency versions in large JavaScript Monorepos"
 license = "MIT"
@@ -23,7 +23,7 @@ readme = "./README.md"
 publish = false
 
 [dependencies]
-clap = { version = "4.5.19", features = ["cargo"] }
+clap = { version = "4.5.20", features = ["cargo"] }
 colored = "2.1.0"
 ctor = "0.2.8"
 env_logger = "0.11.5"
@@ -34,7 +34,7 @@ itertools = "0.13.0"
 lazy_static = "1.5.0"
 log = "0.4.22"
 node-semver = "2.1.0"
-regex = "1.11.0"
-serde = { version = "1.0.210", features = ["derive"] }
-serde_json = { version = "1.0.128", features = ["preserve_order"] }
+regex = "1.11.1"
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = { version = "1.0.132", features = ["preserve_order"] }
 version-compare = "0.2.0"

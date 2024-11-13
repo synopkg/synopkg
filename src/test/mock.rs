@@ -1,42 +1,44 @@
-use std::{cell::RefCell, path::PathBuf};
-
-use serde_json::Value;
-
-use crate::{
-  cli::{Cli, CliOptions, Subcommand},
-  config::{Config, Rcfile},
-  package_json::PackageJson,
-  packages::Packages,
+use {
+  crate::{
+    cli::{Cli, SortBy, Subcommand},
+    config::Config,
+    package_json::PackageJson,
+    packages::Packages,
+    rcfile::Rcfile,
+  },
+  log::LevelFilter,
+  serde_json::Value,
+  std::{cell::RefCell, env, path::PathBuf},
 };
 
 pub fn cli() -> Cli {
   Cli {
-    command_name: Subcommand::Lint,
-    options: CliOptions {
-      filter: None,
-      format: false,
-      versions: true,
-      source: vec![],
-    },
+    check: true,
+    cwd: env::current_dir().unwrap(),
+    filter: None,
+    disable_ansi: false,
+    inspect_formatting: false,
+    inspect_mismatches: true,
+    log_levels: vec![LevelFilter::Error, LevelFilter::Warn, LevelFilter::Info, LevelFilter::Debug],
+    show_ignored: false,
+    show_instances: false,
+    show_hints: false,
+    show_packages: false,
+    show_status_codes: false,
+    source_patterns: vec![],
+    sort: SortBy::Name,
+    subcommand: Subcommand::Lint,
   }
 }
 
 /// Create an empty Config struct
 pub fn config() -> Config {
-  Config {
-    cli: cli(),
-    cwd: std::env::current_dir().unwrap(),
-    rcfile: rcfile(),
-  }
+  Config { cli: cli(), rcfile: rcfile() }
 }
 
 /// Create a Config struct from a mocked .synopkgrc
 pub fn config_from_mock(value: serde_json::Value) -> Config {
-  Config {
-    cli: cli(),
-    cwd: std::env::current_dir().unwrap(),
-    rcfile: rcfile_from_mock(value),
-  }
+  Config { cli: cli(), rcfile: rcfile_from_mock(value) }
 }
 
 /// Create an empty Rcfile struct

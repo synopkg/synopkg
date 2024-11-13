@@ -2,15 +2,16 @@
 #[path = "format_test.rs"]
 mod format_test;
 
-use icu::{
-  collator::{Collator, CollatorOptions},
-  locid::{locale, Locale},
+use {
+  crate::{package_json::PackageJson, rcfile::Rcfile},
+  icu::{
+    collator::{Collator, CollatorOptions},
+    locid::{locale, Locale},
+  },
+  regex::Regex,
+  serde_json::{self, Map, Value},
+  std::{cmp::Ordering, collections::HashSet},
 };
-use regex::Regex;
-use serde_json::{self, Map, Value};
-use std::{cmp::Ordering, collections::HashSet};
-
-use crate::{config::Rcfile, package_json::PackageJson};
 
 /// Use a shorthand format for the bugs URL when possible
 pub fn get_formatted_bugs(package: &PackageJson) -> Option<Value> {
@@ -22,10 +23,7 @@ pub fn get_formatted_repository(package: &PackageJson) -> Option<Value> {
   if !package.has_prop("/repository/directory") {
     package.get_prop("/repository/url").and_then(|url| {
       if let Value::String(url) = url {
-        Regex::new(r#".+github\.com/"#)
-          .ok()
-          .map(|re| re.replace(url.as_str(), "").to_string())
-          .map(Value::String)
+        Regex::new(r#".+github\.com/"#).ok().map(|re| re.replace(url.as_str(), "").to_string()).map(Value::String)
       } else {
         None
       }
@@ -145,13 +143,7 @@ fn sort_alphabetically(value: &mut Value) {
       *value = Value::Object(Map::from_iter(entries));
     }
     Value::Array(arr) => {
-      arr.sort_by(|a, b| {
-        if let (Some(a), Some(b)) = (a.as_str(), b.as_str()) {
-          collator.compare(a, b)
-        } else {
-          Ordering::Equal
-        }
-      });
+      arr.sort_by(|a, b| if let (Some(a), Some(b)) = (a.as_str(), b.as_str()) { collator.compare(a, b) } else { Ordering::Equal });
     }
     _ => {}
   }

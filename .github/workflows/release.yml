@@ -1,7 +1,8 @@
-name: Release rust/main
+name: Release v14-alpha
 
 on:
-  workflow_dispatch:
+  release:
+    types: [published]
 
 permissions:
   contents: write
@@ -22,10 +23,10 @@ jobs:
       - id: set-matrix
         shell: bash
         run: |
-          if [[ $ACT == "true" ]]; then
+          if [ "$ACT" == true ]; then
             echo "build_matrix=$( cat .github/workflows/matrix.json | jq --monochrome-output --compact-output '[.[] | select(.RUN_LOCALLY)]' )" >> $GITHUB_OUTPUT
           else
-            echo "build_matrix=$( cat .github/workflows/matrix.json )" >> $GITHUB_OUTPUT
+            echo "build_matrix=$( cat .github/workflows/matrix.json | jq --monochrome-output --compact-output )" >> $GITHUB_OUTPUT
           fi
 
   publish-npm-binaries:
@@ -104,6 +105,7 @@ jobs:
       - name: Publish the package
         shell: bash
         run: |
+          npm install
           just --dotenv-filename .env.linux-x64-glibc create-npm-root-package
           just --dotenv-filename .env.linux-x64-glibc publish-npm-root-package
         env:

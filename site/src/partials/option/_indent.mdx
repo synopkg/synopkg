@@ -1,0 +1,14 @@
+import { Code } from 'astro:components';
+
+Override your [indent](/synopkg/config/indent) configuration, which is 2 spaces by default.
+
+<Code
+  code={`# four spaces
+synopkg ${props.command} --indent "    "
+# one tab
+synopkg ${props.command} --indent '\t'
+# \\t is converted into a tab
+synopkg ${props.command} --indent '\\t'`}
+  lang="bash"
+
+/>

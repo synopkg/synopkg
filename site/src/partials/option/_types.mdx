@@ -1,0 +1,13 @@
+import { Code } from 'astro:components';
+
+Override your [dependencyTypes](/synopkg/config/dependency-types) configuration to run <code>{`synopkg ${props.command}`}</code> on only eg. `peerDependencies` in every package in your monorepo.
+
+<Code
+  code={`# only include peerDependencies
+synopkg ${props.command} --types 'peer'
+# only include dependencies and devDependencies
+synopkg ${props.command} --types 'prod,dev'
+# exclude local package.json versions
+synopkg ${props.command} --types '!local'`}
+  lang="bash"
+/>
