@@ -147,7 +147,7 @@ impl<'a> Ui<'a> {
     if !self.show_status_codes {
       return "".normal();
     }
-    let base_url = "https://jamiemason.github.io/synopkg/guide/status-codes/";
+    let base_url = "https://synopkg.github.io/synopkg/guide/status-codes/";
     let branch_name = instance_state.get_name();
     let branch_name_lower_case = branch_name.to_lowercase();
     let plain_link = self.link(format!("{base_url}#{branch_name_lower_case}"), branch_name);
@@ -155,7 +155,7 @@ impl<'a> Ui<'a> {
   }
 
   pub fn format_mismatch_variant_link(&self, state: &FormatMismatchVariant) -> ColoredString {
-    let base_url = "https://jamiemason.github.io/synopkg/guide/status-codes/";
+    let base_url = "https://synopkg.github.io/synopkg/guide/status-codes/";
     let branch_name = format!("{:?}", state);
     let branch_name_lower_case = branch_name.to_lowercase();
     let plain_link = self.link(format!("{base_url}#{branch_name_lower_case}"), branch_name);
