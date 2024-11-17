@@ -87,6 +87,13 @@ Credit to the following users for contributing to Synopkg
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/FortiShield">
+                    <img src="https://avatars.githubusercontent.com/u/161459699?v=4" width="80;" alt="FortiShield"/>
+                    <br />
+                    <sub><b>fortishield</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/gitworkflows">
                     <img src="https://avatars.githubusercontent.com/u/118260833?v=4" width="80;" alt="gitworkflows"/>
                     <br />
