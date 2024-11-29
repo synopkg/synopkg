@@ -1,5 +1,8 @@
 use {
-  crate::{cli::SortBy, dependency::Dependency, group_selector::GroupSelector, instance::Instance, package_json::PackageJson, packages::Packages, specifier::Specifier},
+  crate::{
+    cli::SortBy, dependency::Dependency, group_selector::GroupSelector, instance::Instance, package_json::PackageJson, packages::Packages,
+    specifier::Specifier,
+  },
   itertools::Itertools,
   log::warn,
   serde::Deserialize,
@@ -159,7 +162,11 @@ impl VersionGroup {
         pin_version: None,
         selector,
         snap_to: None,
-        variant: if prefer_version == "lowestSemver" { VersionGroupVariant::LowestSemver } else { VersionGroupVariant::HighestSemver },
+        variant: if prefer_version == "lowestSemver" {
+          VersionGroupVariant::LowestSemver
+        } else {
+          VersionGroupVariant::HighestSemver
+        },
       };
     }
     VersionGroup {
@@ -179,7 +186,12 @@ impl VersionGroup {
   {
     match sort {
       SortBy::Count => {
-        self.dependencies.borrow().values().sorted_by(|a, b| b.instances.borrow().len().cmp(&a.instances.borrow().len())).for_each(f);
+        self
+          .dependencies
+          .borrow()
+          .values()
+          .sorted_by(|a, b| b.instances.borrow().len().cmp(&a.instances.borrow().len()))
+          .for_each(f);
       }
       SortBy::Name => {
         self.dependencies.borrow().values().for_each(f);

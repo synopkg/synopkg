@@ -1,7 +1,7 @@
 [package]
 name = "synopkg"
-version = "14.0.0-alpha.0"
-authors = ["synopkg <dev.sulaiman@icloud.com>"]
+version = "14.0.0-alpha.1"
+authors = ["Jamie Mason <jamie@foldleft.io>"]
 edition = "2021"
 homepage = "https://synopkg.github.io/synopkg"
 repository = "https://github.com/synopkg/synopkg/tree/rust/main"
@@ -23,7 +23,9 @@ readme = "./README.md"
 publish = false
 
 [dependencies]
+atty = "0.2.14"
 clap = { version = "4.5.20", features = ["cargo"] }
+color-print = "0.3.6"
 colored = "2.1.0"
 ctor = "0.2.8"
 env_logger = "0.11.5"
@@ -35,6 +37,7 @@ lazy_static = "1.5.0"
 log = "0.4.22"
 node-semver = "2.1.0"
 regex = "1.11.1"
-serde = { version = "1.0.215", features = ["derive"] }
+serde = { version = "1.0.213", features = ["derive"] }
 serde_json = { version = "1.0.132", features = ["preserve_order"] }
+serde_yaml = "0.9"
 version-compare = "0.2.0"

@@ -11,7 +11,7 @@ pub fn sanitise(specifier: &str) -> &str {
 }
 
 pub fn is_simple_semver(str: &str) -> bool {
-  is_exact(str) || is_latest(str) || is_major(str) || is_minor(str) || is_range(str) || is_range_major(str) || is_range_minor(str) || is_range_only(str)
+  is_exact(str) || is_latest(str) || is_major(str) || is_minor(str) || is_range(str) || is_range_major(str) || is_range_minor(str)
 }
 
 pub fn is_exact(str: &str) -> bool {
@@ -28,10 +28,6 @@ pub fn is_major(str: &str) -> bool {
 
 pub fn is_minor(str: &str) -> bool {
   regexes::MINOR.is_match(str)
-}
-
-pub fn has_semver_range(specifier: &str) -> bool {
-  regexes::SEMVER_RANGE.is_match(specifier)
 }
 
 pub fn is_range(specifier: &str) -> bool {
@@ -58,12 +54,6 @@ pub fn is_range_major(specifier: &str) -> bool {
     || regexes::LTE_MAJOR.is_match(specifier)
 }
 
-/// This relates to the specifier portion of the workspace protocol, such as
-/// `workspace:*` or `workspace:^`
-pub fn is_range_only(specifier: &str) -> bool {
-  specifier == "^" || specifier == "~" || specifier == ">" || specifier == ">=" || specifier == "<" || specifier == "<="
-}
-
 pub fn is_range_minor(specifier: &str) -> bool {
   regexes::CARET_MINOR.is_match(specifier)
     || regexes::TILDE_MINOR.is_match(specifier)
@@ -80,7 +70,13 @@ pub fn is_complex_range(specifier: &str) -> bool {
     .split(specifier)
     .map(|str| str.trim())
     .filter(|str| !str.is_empty())
-    .all(|or_condition| or_condition.split(' ').map(|str| str.trim()).filter(|str| !str.is_empty()).all(is_simple_semver))
+    .all(|or_condition| {
+      or_condition
+        .split(' ')
+        .map(|str| str.trim())
+        .filter(|str| !str.is_empty())
+        .all(is_simple_semver)
+    })
 }
 
 pub fn is_tag(str: &str) -> bool {
@@ -88,8 +84,7 @@ pub fn is_tag(str: &str) -> bool {
 }
 
 pub fn is_workspace_protocol(str: &str) -> bool {
-  let inner_specifier = &str.replace("workspace:", "");
-  regexes::WORKSPACE_PROTOCOL.is_match(str) && is_simple_semver(inner_specifier)
+  regexes::WORKSPACE_PROTOCOL.is_match(str)
 }
 
 pub fn is_alias(str: &str) -> bool {

@@ -61,7 +61,11 @@ impl Packages {
 
   /// Get a package.json file by its name
   pub fn get_by_name(&self, name: &str) -> Option<Rc<RefCell<PackageJson>>> {
-    self.all.iter().find(|package| package.borrow().get_name_unsafe() == name).map(Rc::clone)
+    self
+      .all
+      .iter()
+      .find(|package| package.borrow().get_name_unsafe() == name)
+      .map(Rc::clone)
   }
 
   /// Get every instance of a dependency from every package.json file
@@ -85,26 +89,46 @@ impl Packages {
                 }
               }),
             ) {
-              on_instance(Instance::new(name.to_string(), raw_specifier.to_string(), dependency_type, Rc::clone(package)));
+              on_instance(Instance::new(
+                name.to_string(),
+                raw_specifier.to_string(),
+                dependency_type,
+                Rc::clone(package),
+              ));
             }
           }
           Strategy::NamedVersionString => {
             if let Some(Value::String(specifier)) = package.borrow().get_prop(&dependency_type.path) {
               if let Some((name, raw_specifier)) = specifier.split_once('@') {
-                on_instance(Instance::new(name.to_string(), raw_specifier.to_string(), dependency_type, Rc::clone(package)));
+                on_instance(Instance::new(
+                  name.to_string(),
+                  raw_specifier.to_string(),
+                  dependency_type,
+                  Rc::clone(package),
+                ));
               }
             }
           }
           Strategy::UnnamedVersionString => {
             if let Some(Value::String(raw_specifier)) = package.borrow().get_prop(&dependency_type.path) {
-              on_instance(Instance::new(dependency_type.name.clone(), raw_specifier.to_string(), dependency_type, Rc::clone(package)));
+              on_instance(Instance::new(
+                dependency_type.name.clone(),
+                raw_specifier.to_string(),
+                dependency_type,
+                Rc::clone(package),
+              ));
             }
           }
           Strategy::VersionsByName => {
             if let Some(Value::Object(versions_by_name)) = package.borrow().get_prop(&dependency_type.path) {
               for (name, raw_specifier) in versions_by_name {
                 if let Value::String(version) = raw_specifier {
-                  on_instance(Instance::new(name.to_string(), version.to_string(), dependency_type, Rc::clone(package)));
+                  on_instance(Instance::new(
+                    name.to_string(),
+                    version.to_string(),
+                    dependency_type,
+                    Rc::clone(package),
+                  ));
                 }
               }
             }
@@ -176,7 +200,18 @@ fn get_source_patterns(config: &Config) -> Vec<String> {
           patterns
         })
     })
-    .map(|patterns| patterns.into_iter().map(|pattern| if pattern.contains("package.json") { pattern } else { format!("{}/package.json", pattern) }).collect())
+    .map(|patterns| {
+      patterns
+        .into_iter()
+        .map(|pattern| {
+          if pattern.contains("package.json") {
+            pattern
+          } else {
+            format!("{}/package.json", pattern)
+          }
+        })
+        .collect()
+    })
     .or_else(get_default_patterns)
     .unwrap()
 }
@@ -230,7 +265,11 @@ fn get_npm_and_yarn_patterns(cwd: &Path) -> Option<Vec<String>> {
   serde_json::from_str::<SourcesUnderWorkspacesDotPackages>(&json)
     .ok()
     .and_then(|package_json| package_json.workspaces.packages)
-    .or_else(|| serde_json::from_str::<SourcesUnderWorkspaces>(&json).ok().and_then(|package_json| package_json.workspaces))
+    .or_else(|| {
+      serde_json::from_str::<SourcesUnderWorkspaces>(&json)
+        .ok()
+        .and_then(|package_json| package_json.workspaces)
+    })
 }
 
 /// Look for source patterns in the `lerna.json` file

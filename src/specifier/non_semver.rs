@@ -1,8 +1,6 @@
 use super::{
   orderable::{IsOrderable, Orderable},
   parser,
-  simple_semver::SimpleSemver,
-  Specifier,
 };
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -46,15 +44,8 @@ impl NonSemver {
 }
 
 impl IsOrderable for NonSemver {
-  fn get_orderable(&self, canonical_specifier: Option<&SimpleSemver>) -> Orderable {
-    match self {
-      Self::WorkspaceProtocol(string) => {
-        let without_protocol = string.replace("workspace:", "");
-        let specifier = Specifier::new(&without_protocol);
-        specifier.get_orderable(canonical_specifier)
-      }
-      // @TODO: look for semver substrings in eg URLs, file paths, etc
-      _ => Orderable::new(),
-    }
+  fn get_orderable(&self) -> Orderable {
+    // @TODO: look for semver substrings in eg URLs, file paths, etc
+    Orderable::new()
   }
 }

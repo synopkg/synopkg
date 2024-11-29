@@ -5,7 +5,10 @@ use {
 
 #[test]
 fn returns_err_when_specifier_is_not_simple_semver() {
-  assert_eq!(SimpleSemver::new("<2 || >3"), Err("'<2 || >3' was expected to be a simple semver specifier but was not recognised".to_string()));
+  assert_eq!(
+    SimpleSemver::new("<2 || >3"),
+    Err("'<2 || >3' was expected to be a simple semver specifier but was not recognised".to_string())
+  );
 }
 
 #[test]
@@ -54,7 +57,7 @@ fn returns_struct_for_comparison_and_sorting() {
   for (str, expected) in cases {
     let raw = str.to_string();
     let semver = SimpleSemver::new(&raw).unwrap();
-    let orderable = semver.get_orderable(None);
+    let orderable = semver.get_orderable();
     assert_eq!(orderable.range, expected.range, "range");
     assert_eq!(orderable.version.major, expected.version.major, "version.major");
     assert_eq!(orderable.version.minor, expected.version.minor, "version.minor");

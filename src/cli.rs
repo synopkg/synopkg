@@ -129,8 +129,7 @@ fn create() -> Command {
 <dim>$</dim> <blue><bold>synopkg lint</bold> --dependencies '{has_braces}'</>
 <dim>Substring match for "react" or "webpack"  (2 approaches)</>
 <dim>$</dim> <blue><bold>synopkg lint</bold> --dependencies '**react**' --dependencies '**webpack**'</>
-<dim>$</dim> <blue><bold>synopkg lint</bold> --dependencies '**{has_braces}**'</>"#,
-              has_braces = "{react,webpack}"
+<dim>$</dim> <blue><bold>synopkg lint</bold> --dependencies '**{has_braces}**'</>"#, has_braces="{react,webpack}"
             ))
             .action(clap::ArgAction::Append),
         )
@@ -294,7 +293,9 @@ still inspect and exit 1/0 based on every dependency in your project.
 <dim>$</dim> <blue><bold>synopkg format</bold> --show packages</>"#
             ))
             .value_delimiter(',')
-            .value_parser(["packages"]),
+            .value_parser([
+              "packages",
+            ])
         )
         .arg(source_option("format")),
     )
@@ -340,12 +341,22 @@ fn should_show(matches: &ArgMatches, name: &str) -> bool {
     .try_get_many::<String>("show")
     .ok()
     .flatten()
-    .map(|show| show.collect_vec().iter().any(|value| value == &&"all".to_string() || value == &&name.to_string()))
+    .map(|show| {
+      show
+        .collect_vec()
+        .iter()
+        .any(|value| value == &&"all".to_string() || value == &&name.to_string())
+    })
     .unwrap_or(false)
 }
 
 fn get_log_levels(matches: &ArgMatches) -> Vec<LevelFilter> {
-  let chosen_values = matches.try_get_many::<String>("log-levels").ok().flatten().unwrap_or_default().collect_vec();
+  let chosen_values = matches
+    .try_get_many::<String>("log-levels")
+    .ok()
+    .flatten()
+    .unwrap_or_default()
+    .collect_vec();
   vec![
     ("off", LevelFilter::Off),
     ("error", LevelFilter::Error),
@@ -354,7 +365,11 @@ fn get_log_levels(matches: &ArgMatches) -> Vec<LevelFilter> {
     ("debug", LevelFilter::Debug),
   ]
   .into_iter()
-  .filter(|(name, _)| chosen_values.iter().any(|choice| choice == &&"all".to_string() || choice == &&name.to_string()))
+  .filter(|(name, _)| {
+    chosen_values
+      .iter()
+      .any(|choice| choice == &&"all".to_string() || choice == &&name.to_string())
+  })
   .map(|(_, level)| level)
   .collect_vec()
 }

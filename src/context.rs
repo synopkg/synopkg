@@ -37,7 +37,10 @@ impl Context {
       if let Some(semver_group) = semver_groups.iter().find(|semver_group| semver_group.selector.can_add(&instance)) {
         instance.set_semver_group(semver_group);
       }
-      if let Some(version_group) = version_groups.iter().find(|version_group| version_group.selector.can_add(&instance)) {
+      if let Some(version_group) = version_groups
+        .iter()
+        .find(|version_group| version_group.selector.can_add(&instance))
+      {
         version_group.add_instance(instance, &config.cli.filter);
       }
     });
@@ -53,7 +56,13 @@ impl Context {
 
   /// Get all packages with valid formatting
   pub fn get_formatted_packages(&self) -> Vec<Rc<RefCell<PackageJson>>> {
-    self.packages.all.iter().filter(|package| package.borrow().formatting_mismatches.borrow().is_empty()).map(Rc::clone).collect()
+    self
+      .packages
+      .all
+      .iter()
+      .filter(|package| package.borrow().formatting_mismatches.borrow().is_empty())
+      .map(Rc::clone)
+      .collect()
   }
 
   /// Get all formatting issues in package.json files, grouped by issue type

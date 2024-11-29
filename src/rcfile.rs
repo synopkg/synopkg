@@ -53,7 +53,12 @@ fn default_sort_exports() -> Vec<String> {
 }
 
 fn sort_first() -> Vec<String> {
-  vec!["name".to_string(), "description".to_string(), "version".to_string(), "author".to_string()]
+  vec![
+    "name".to_string(),
+    "description".to_string(),
+    "version".to_string(),
+    "author".to_string(),
+  ]
 }
 
 fn default_source() -> Vec<String> {
@@ -147,7 +152,11 @@ impl Rcfile {
 
   /// Create every version group defined in the rcfile.
   pub fn get_version_groups(&self, packages: &Packages) -> Vec<VersionGroup> {
-    let mut all_groups: Vec<VersionGroup> = self.version_groups.iter().map(|group_config| VersionGroup::from_config(group_config, packages)).collect();
+    let mut all_groups: Vec<VersionGroup> = self
+      .version_groups
+      .iter()
+      .map(|group_config| VersionGroup::from_config(group_config, packages))
+      .collect();
     all_groups.push(VersionGroup::get_catch_all());
     all_groups
   }

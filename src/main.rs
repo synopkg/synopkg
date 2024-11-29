@@ -34,7 +34,6 @@ mod packages;
 mod rcfile;
 mod semver_group;
 mod specifier;
-mod specifier2;
 mod version_group;
 mod visit_packages;
 

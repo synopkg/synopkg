@@ -19,15 +19,17 @@ impl Semver {
     } else if parser::is_complex_range(str) {
       Ok(Self::Complex(string))
     } else {
-      Err(format!("'{specifier}' was expected to be a semver specifier but was not recognised"))
+      Err(format!(
+        "'{specifier}' was expected to be a semver specifier but was not recognised"
+      ))
     }
   }
 }
 
 impl IsOrderable for Semver {
-  fn get_orderable(&self, canonical_specifier: Option<&SimpleSemver>) -> Orderable {
+  fn get_orderable(&self) -> Orderable {
     match self {
-      Self::Simple(simple_semver) => simple_semver.get_orderable(canonical_specifier),
+      Self::Simple(simple_semver) => simple_semver.get_orderable(),
       Self::Complex(_) => Orderable::new(),
     }
   }
