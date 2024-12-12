@@ -4,10 +4,13 @@
 const config = {
   semverGroups: [
     {
-      range: '*', // Or provide a valid semver range
+      range: '',
     },
   ],
-  versionGroups: [{ dependencies: ['minimatch'], pinVersion: '9.0.5' }],
+  versionGroups: [
+    // v10 does not support Node 18
+    { dependencies: ['minimatch'], pinVersion: '9.0.5' },
+  ],
 };
 
-export { config };
+export default config;
