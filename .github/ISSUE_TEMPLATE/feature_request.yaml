@@ -38,14 +38,14 @@ body:
       A healthy community is built on fairness, mutual respect, support and collaboration. By giving back — whether through code contributions, documentation, testing, or simply spreading the word — you help maintain a vibrant and sustainable project.
       | Contribution                                                                               | Cost       |
       | :----------------------------------------------------------------------------------------- | :--------- |
-      | [Sponsor](https://github.com/sponsors/Synopkg?frequency=one-time)                       | 🔴 Money   |
-      | [Contribute Rust code](https://github.com/Synopkg/synopkg/tree/rust/main)              | 🟠 Time    |
-      | [Improve the docs](https://github.com/Synopkg/synopkg/tree/main/site/src/content/docs) | 🟡 Time    |
-      | [Star synopkg](https://github.com/Synopkg/synopkg)                                    | 🟢 Nothing |
+      | [Sponsor](https://github.com/sponsors/SynoPkg?frequency=one-time)                       | 🔴 Money   |
+      | [Contribute Rust code](https://github.com/SynoPkg/synopkg/tree/rust/main)              | 🟠 Time    |
+      | [Improve the docs](https://github.com/SynoPkg/synopkg/tree/main/site/src/content/docs) | 🟡 Time    |
+      | [Star synopkg](https://github.com/SynoPkg/synopkg)                                    | 🟢 Nothing |
       | **Recommend synopkg** to others                                                           | 🟢 Nothing |
 - type: checkboxes
   attributes:
     label: Code of Conduct
     options:
-      - label: I agree to follow the [Code of Conduct](https://github.com/Synopkg/synopkg/blob/main/CODE_OF_CONDUCT.md)
+      - label: I agree to follow the [Code of Conduct](https://github.com/SynoPkg/synopkg/blob/main/CODE_OF_CONDUCT.md)
         required: true

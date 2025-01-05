@@ -9,11 +9,11 @@ export default defineConfig({
     starlight({
       title: 'Synopkg',
       social: {
-        github: 'https://github.com/synopkg/synopkg',
+        github: 'https://github.com/SynoPkg/synopkg',
         twitter: 'https://twitter.com/fold_left',
       },
       editLink: {
-        baseUrl: 'https://github.com/synopkg/synopkg/edit/starlight/site/',
+        baseUrl: 'https://github.com/SynoPkg/synopkg/edit/starlight/site/',
       },
       favicon: '/favicon.ico',
       logo: {
@@ -33,7 +33,7 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Github',
-          link: 'https://github.com/synopkg/synopkg',
+          link: 'https://github.com/SynoPkg/synopkg',
         },
         {
           label: 'Guides',

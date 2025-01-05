@@ -40,7 +40,7 @@ export function readConfigFile(
 
 /**
  * Look for a .config.synopkg property in the root package.json.
- * @see https://github.com/synopkg/synopkg/issues/86
+ * @see https://github.com/SynoPkg/synopkg/issues/86
  */
 function findConfigInPackageJson(
   io: Io,

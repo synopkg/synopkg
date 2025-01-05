@@ -2458,7 +2458,7 @@ describe('when a local package is depended on', () => {
         });
       });
 
-      /** @see https://github.com/synopkg/synopkg/issues/95 */
+      /** @see https://github.com/SynoPkg/synopkg/issues/95 */
       describe('when a "sameRange" policy IS used', () => {
         const getScenario = createScenario({
           '.synopkgrc': {

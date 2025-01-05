@@ -1,40 +1,51 @@
-name: Test Deployment
-
-defaults:
-  run:
-    shell: bash
-    working-directory: site
+name: verify
 
 on:
+  pull_request:
   push:
-    branches:
-      - main
 
 jobs:
-  test-deploy:
-    name: Test Deployment
-    runs-on: ubuntu-latest
+  all:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [18.18.0, 20.x, 22.x]
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 8
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          cache: 'pnpm'
+          node-version: ${{ matrix.node-version }}
 
-      - name: Verify pnpm Installation
-        run: pnpm --version
-
-      - name: Install Dependencies
+      - name: Install
         run: pnpm install
 
-      - name: Test Build Website
+      - name: Build
         run: pnpm run build
+        env:
+          FORCE_COLOR: 3
+          TERM: xterm-256color
+
+      - name: E2E Smoke Test
+        if: matrix.os == 'ubuntu-latest'
+        run: ./test/smoke.sh
+
+      - name: Lint
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
+        run: pnpm run lint
+        env:
+          FORCE_COLOR: 3
+          TERM: xterm-256color
+
+      - name: Test
+        run: pnpm run test
+        env:
+          FORCE_COLOR: 3
+          TERM: xterm-256color
