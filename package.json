@@ -1,7 +1,7 @@
 {
   "name": "synopkg",
   "description": "Consistent dependency versions in large JavaScript Monorepos",
-  "version": "13.0.1",
+  "version": "13.0.2",
   "author": "GitWorkflows <dev.sulaiman@icloud.com> (https://github.com/synopkg)",
   "bin": {
     "synopkg": "dist/bin.js",
