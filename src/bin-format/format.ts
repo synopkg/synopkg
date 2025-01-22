@@ -18,6 +18,7 @@ import { IoTag } from '../io/index.js';
 import { toFormattedJson } from '../io/to-formatted-json.js';
 import { writeIfChanged } from '../io/write-if-changed.js';
 import { withLogger } from '../lib/with-logger.js';
+import { formatRepositoryUrl } from '../lib/format-repository-url.js';
 
 interface Input {
   io: Io;
@@ -83,9 +84,7 @@ export function pipeline(ctx: Ctx): Effect.Effect<Ctx> {
       const repoUrl = chain?.repository?.url;
       const repoDir = chain?.repository?.directory;
       if (isNonEmptyString(repoUrl) && !isNonEmptyString(repoDir)) {
-        contents.repository = repoUrl.includes('github.com')
-          ? repoUrl.replace(/^.+github\.com\//, '')
-          : repoUrl;
+        contents.repository = formatRepositoryUrl(repoUrl);
       }
     }
 
