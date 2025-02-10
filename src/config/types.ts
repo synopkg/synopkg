@@ -158,7 +158,9 @@ export interface RcConfig {
   /** @see https://synopkg.github.io/synopkg/integrations/json-schema */
   $schema?: string;
   /** @see https://synopkg.github.io/synopkg/config/custom-types */
-  customTypes: Record<string, CustomTypeConfig.Any>;
+  customTypes: {
+    [name: string]: CustomTypeConfig.Any;
+  };
   /** @see https://synopkg.github.io/synopkg/config/dependency-types */
   dependencyTypes: DependencyType[];
   /** @see https://synopkg.github.io/synopkg/config/filter */
