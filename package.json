@@ -84,7 +84,7 @@
     "yarn"
   ],
   "license": "MIT",
-  "repository": "SynoPkg/synopkg",
+  "repository": "synopkg/synopkg",
   "scripts": {
     "build": "pnpm run clean && pnpm run build:source && pnpm run build:json-schema",
     "build:json-schema": "typescript-json-schema --esModuleInterop --noExtraProps --ignoreErrors src/index.ts RcFile --out dist/schema.json",
