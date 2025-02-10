@@ -34,7 +34,9 @@
     "read-yaml-file": "2.1.0",
     "semver": "7.6.3",
     "tightrope": "0.2.0",
-    "ts-toolbelt": "9.6.0"
+    "ts-toolbelt": "9.6.0",
+    "vscode-languageclient": "8.0.0",
+    "vscode-languageserver": "8.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -99,7 +101,9 @@
     "prepack": "pnpm run build",
     "release": "release-it",
     "test": "vitest run --coverage src",
-    "test:watch": "vitest run --no-coverage --watch"
+    "test:watch": "vitest run --no-coverage --watch",
+    "setup-language-server": "npm install vscode-languageclient vscode-languageserver",
+    "run-language-server": "ts-node --transpileOnly src/language-server"
   },
   "type": "module",
   "types": "./dist/index.d.ts"
