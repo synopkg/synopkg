@@ -1,21 +1,24 @@
 {
-  "code_actions_on_format": {
-    "source.fixAll.biome": true,
-    "source.organizeImports.biome": true
-  },
   "ensure_final_newline_on_save": true,
   "formatter": {
-    "language_server": {
-      "name": "biome"
+    "external": {
+      "command": "./node_modules/.bin/biome",
+      "arguments": ["check", "--stdin-file-path", "{buffer_path}", "--apply"]
     }
   },
-  "lsp": {
-    "biome": {
-      "settings": {
-        "config_path": "../biome.json",
-        "require_config_file": true
+  "remove_trailing_whitespace_on_save": true,
+  "language_server": {
+    "enable": true,
+    "settings": {
+      "performance": {
+        "max_memory": 4096,
+        "max_cpu": 2
+      },
+      "features": {
+        "auto_complete": true,
+        "hover": true,
+        "signature_help": true
       }
     }
-  },
-  "remove_trailing_whitespace_on_save": true
+  }
 }
