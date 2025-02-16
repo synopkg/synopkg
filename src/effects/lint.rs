@@ -1,9 +1,8 @@
-use crate::{context::Context, effects::ui::Ui, version_group::VersionGroupVariant};
+use crate::{context::Context, effects::ui::Ui, instance_state::InstanceState, version_group::VersionGroupVariant};
 
 /// Run the lint command side effects
 pub fn run(ctx: Context) -> Context {
   let ui = Ui { ctx: &ctx };
-  let has_cli_filter = ctx.config.cli.filter.is_some();
   let running_multiple_commands = ctx.config.cli.inspect_mismatches && ctx.config.cli.inspect_formatting;
 
   if ctx.config.cli.inspect_mismatches {
@@ -11,12 +10,11 @@ pub fn run(ctx: Context) -> Context {
       ui.print_command_header("SEMVER RANGES AND VERSION MISMATCHES");
     }
     ctx.version_groups.iter().for_each(|group| {
-      if has_cli_filter && !*group.matches_cli_filter.borrow() {
+      if !group.matches_cli_filter {
         return;
       }
       ui.print_group_header(group);
       if group.dependencies.borrow().len() == 0 {
-        let label = &group.selector.label;
         ui.print_empty_group();
         return;
       }
@@ -25,13 +23,13 @@ pub fn run(ctx: Context) -> Context {
         return;
       }
       group.for_each_dependency(&ctx.config.cli.sort, |dependency| {
-        if has_cli_filter && !*dependency.matches_cli_filter.borrow() {
+        if !dependency.matches_cli_filter {
           return;
         }
         ui.print_dependency(dependency, &group.variant);
         dependency.for_each_instance(|instance| {
-          if ctx.config.cli.show_instances {
-            if has_cli_filter && !*instance.matches_cli_filter.borrow() {
+          if !matches!(*instance.state.borrow(), InstanceState::Valid(_)) || ctx.config.cli.show_instances {
+            if !instance.matches_cli_filter {
               return;
             }
             ui.print_instance(instance, &group.variant);
