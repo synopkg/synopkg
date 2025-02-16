@@ -71,7 +71,7 @@ export const defaultErrorHandlers: ErrorHandlers = {
   },
   // Others
   DeprecatedTypesError(err) {
-    const url = 'https://github.com/synopkg/synopkg/releases/tag/9.0.0';
+    const url = 'https://github.com/SynoPkg/synopkg/releases/tag/9.0.0';
     return Effect.logError(
       [
         chalk.red(
@@ -97,7 +97,7 @@ export const defaultErrorHandlers: ErrorHandlers = {
     );
   },
   RenamedWorkspaceTypeError() {
-    const url = 'https://github.com/synopkg/synopkg/releases/tag/11.2.1';
+    const url = 'https://github.com/SynoPkg/synopkg/releases/tag/11.2.1';
     return Effect.logError(
       [
         chalk.red(
