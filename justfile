@@ -105,12 +105,20 @@ run-misc:
     RUST_BACKTRACE=1 cargo run -- lint --source 'package.json'
 
 # Run the dev rust binary against a clone of microsoft/FluidFramework
-run-fluid:
+run-fluid-lint:
     #!/usr/bin/env bash
     set -euxo pipefail
 
     cd fixtures/fluid-framework
-    RUST_BACKTRACE=1 cat .synopkgrc.json | jq -cM | cargo run -- lint
+    RUST_BACKTRACE=1 cargo run -- lint
+
+# Run the dev rust binary against a clone of microsoft/FluidFramework
+run-fluid-fix:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    cd fixtures/fluid-framework
+    RUST_BACKTRACE=1 cargo run -- fix --dry-run
 
 # Run the release rust binary against a clone of microsoft/FluidFramework
 run-fluid-prod:
@@ -216,7 +224,7 @@ create-npm-root-package:
     rm -rf "$NODE_ROOT_PKG_DIR_PATH"
     mkdir -p "$NODE_ROOT_PKG_DIR_PATH"
     cp README.md "$NODE_ROOT_PKG_DIR_PATH/README.md"
-    cp npm/index.js "$NODE_ROOT_PKG_DIR_PATH/index.js"
+    cp npm/index.cjs "$NODE_ROOT_PKG_DIR_PATH/index.cjs"
     just build-npm-types
     just create-npm-root-package-json
 
@@ -240,7 +248,7 @@ create-npm-root-package-json:
         ...pkg,
         devDependencies: undefined,
         bin: {
-          synopkg: "./index.js",
+          synopkg: "./index.cjs",
         },
         optionalDependencies: {
           "synopkg-linux-x64": pkg.version,
@@ -259,6 +267,13 @@ create-npm-root-package-json:
 # ==============================================================================
 # Publish
 # ==============================================================================
+
+# Create tagged, versioned commit
+create-release-commit:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    npm exec release-it --increment pre
 
 # Publish the npm package for a specific target
 publish-npm-binary-package:

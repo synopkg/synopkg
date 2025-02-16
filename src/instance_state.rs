@@ -79,7 +79,7 @@ impl Ord for InstanceState {
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum ValidInstance {
-  /// - ✓ Instance is configured to be ignored by Synopkg
+  /// - ✓ Instance is configured to be ignored by Syncpack
   IsIgnored,
   /// - ✓ Instance is a local package and its version is valid
   IsLocalAndValid,
@@ -169,11 +169,6 @@ pub enum UnfixableInstance {
   /// - ? Instance has no semver group
   /// - ? We can't know what range the user wants and have to ask them
   SameRangeMismatch,
-  /// - ✓ Instance is in a snapped to version group
-  /// - ✘ An instance of the same dependency was not found in any of the snapped
-  ///   to packages
-  /// - ✘ This is a misconfiguration resulting in this instance being orphaned
-  DependsOnMissingSnapTarget,
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -223,19 +218,24 @@ pub enum SemverGroupAndVersionConflict {
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum SuspectInstance {
   /// - ✘ Local Instance is in a banned version group
-  /// - ✘ Misconfiguration: Synopkg refuses to change local dependency
+  /// - ✘ Misconfiguration: Syncpack refuses to change local dependency
   ///   specifiers
   RefuseToBanLocal,
   /// - ✘ Local Instance mismatches its pinned version group
-  /// - ✘ Misconfiguration: Synopkg refuses to change local dependency
+  /// - ✘ Misconfiguration: Syncpack refuses to change local dependency
   ///   specifiers
   RefuseToPinLocal,
   /// - ✘ Local Instance is in a snapped to version group
   /// - ✘ An Instance of this dependency was found in the snapped to package
-  /// - ✘ Misconfiguration: Synopkg refuses to change local dependency
+  /// - ✘ Misconfiguration: Syncpack refuses to change local dependency
   ///   specifiers
   RefuseToSnapLocal,
   /// - ! Local Instance has no version property
   /// - ! Not an error on its own unless an instance of it mismatches
   InvalidLocalVersion,
+  /// - ✓ Instance is in a snapped to version group
+  /// - ✘ An instance of the same dependency was not found in any of the snapped
+  ///   to packages
+  /// - ! This is a misconfiguration resulting in this instance being orphaned
+  DependsOnMissingSnapTarget,
 }

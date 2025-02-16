@@ -1,14 +1,4 @@
-use {super::regexes, log::debug};
-
-/// Convert non-semver specifiers to semver when behaviour is identical
-pub fn sanitise(specifier: &str) -> &str {
-  if specifier == "latest" || specifier == "x" {
-    debug!("Sanitising specifier: {} → *", specifier);
-    "*"
-  } else {
-    specifier
-  }
-}
+use super::regexes;
 
 pub fn is_simple_semver(str: &str) -> bool {
   is_exact(str) || is_latest(str) || is_major(str) || is_minor(str) || is_range(str) || is_range_major(str) || is_range_minor(str)
@@ -66,11 +56,13 @@ pub fn is_range_minor(specifier: &str) -> bool {
 /// Is this a semver range containing multiple parts?
 /// Such as OR (" || ") or AND (" ")
 pub fn is_complex_range(specifier: &str) -> bool {
-  regexes::OR_OPERATOR
+  let parts: Vec<_> = regexes::INFIX_OPERATORS
     .split(specifier)
     .map(|str| str.trim())
     .filter(|str| !str.is_empty())
-    .all(|or_condition| {
+    .collect();
+  parts.len() > 1
+    && parts.into_iter().all(|or_condition| {
       or_condition
         .split(' ')
         .map(|str| str.trim())

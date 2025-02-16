@@ -6,6 +6,7 @@ use {
     packages::Packages,
     rcfile::Rcfile,
   },
+  log::LevelFilter,
   serde_json::Value,
   std::{cell::RefCell, env, path::PathBuf},
 };
@@ -14,11 +15,12 @@ pub fn cli() -> Cli {
   Cli {
     check: true,
     cwd: env::current_dir().unwrap(),
+    dry_run: true,
     filter: None,
     disable_ansi: true,
     inspect_formatting: false,
     inspect_mismatches: true,
-    log_levels: vec![],
+    log_levels: vec![LevelFilter::Error],
     show_ignored: false,
     show_instances: false,
     show_hints: false,
@@ -60,6 +62,11 @@ pub fn rcfile_from_mock(value: serde_json::Value) -> Rcfile {
 /// Parse a package.json string
 pub fn package_json_from_value(contents: Value) -> PackageJson {
   PackageJson {
+    name: contents
+      .pointer("/name")
+      .and_then(|name| name.as_str())
+      .unwrap_or("NAME_IS_MISSING")
+      .to_string(),
     file_path: PathBuf::new(),
     formatting_mismatches: RefCell::new(vec![]),
     json: RefCell::new(contents.to_string()),

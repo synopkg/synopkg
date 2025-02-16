@@ -7,7 +7,7 @@ pub mod lint;
 /// A shared module with methods for printing messages to the console
 pub mod ui;
 
-/// Side effects in Synopkg commands are handled by structs which implement
+/// Side effects in Syncpack commands are handled by structs which implement
 /// this trait. Multiple commands such as `lint`, `fix`, and `json` all depend
 /// on the same core logic, but have different side effects.
 ///

@@ -1,5 +1,5 @@
 use {
-  crate::group_selector::GroupSelector,
+  crate::{group_selector::GroupSelector, packages::Packages},
   clap::{builder::ValueParser, crate_description, crate_name, crate_version, Arg, ArgMatches, Command},
   color_print::cformat,
   itertools::Itertools,
@@ -26,24 +26,26 @@ pub struct Cli {
   pub check: bool,
   /// The path to the root of the project
   pub cwd: PathBuf,
+  /// Whether to disable ANSI color codes in terminal output
+  pub disable_ansi: bool,
+  /// Whether to simulate changes without writing them to disk
+  pub dry_run: bool,
   /// A set of filters made up of filter options passed in as CLI arguments:
   /// - `--dependencies` to filter by dependency name
   /// - `--dependency-types` to filter by dependency type
   /// - `--specifier-types` to filter by specifier type
   /// - `--packages` to filter by package name
   pub filter: Option<GroupSelector>,
-  /// Whether to disable ANSI color codes in terminal output
-  pub disable_ansi: bool,
   /// Whether to inspect formatting of package.json files
   pub inspect_formatting: bool,
   /// Whether to inspect semver ranges and versions
   pub inspect_mismatches: bool,
   /// Which severity levels of logging to display
   pub log_levels: Vec<LevelFilter>,
-  /// Whether to output ignored dependencies regardless
-  pub show_ignored: bool,
   /// Whether to indicate that a dependency is a package developed locally
   pub show_hints: bool,
+  /// Whether to output ignored dependencies regardless
+  pub show_ignored: bool,
   /// Whether to list every affected instance of a dependency when listing
   /// version or semver range mismatches
   pub show_instances: bool,
@@ -79,9 +81,9 @@ impl Cli {
     Self {
       check: matches!(&subcommand, Subcommand::Lint) || matches!(&subcommand, Subcommand::Format) && matches.get_flag("check"),
       cwd: env::current_dir().unwrap(),
-      // @TODO
       filter: get_filters(matches),
       disable_ansi: matches.get_flag("no-ansi"),
+      dry_run: (matches!(&subcommand, Subcommand::Fix) || matches!(&subcommand, Subcommand::Format)) && matches.get_flag("dry-run"),
       inspect_formatting: matches!(&subcommand, Subcommand::Format),
       inspect_mismatches: matches!(&subcommand, Subcommand::Lint) || matches!(&subcommand, Subcommand::Fix),
       log_levels: get_log_levels(matches),
@@ -103,7 +105,7 @@ fn create() -> Command {
     .version(crate_version!())
     .subcommand(
       Command::new("lint")
-        .about("Lint all versions and ranges and exit with 0 or 1 based on whether all files match your Synopkg configuration file")
+        .about("Lint all versions and ranges and exit with 0 or 1 based on whether all files match your Syncpack configuration file")
         .after_long_help(additional_help())
         .arg(
           Arg::new("dependencies")
@@ -268,6 +270,7 @@ still inspect and exit 1/0 based on every dependency in your project.
       Command::new("fix")
         .about("Ensure that multiple packages requiring the same dependency define the same version, so that every package requires eg. `react@16.4.2`, instead of a combination of `react@16.4.2`, `react@0.15.9`, and `react@16.0.0`")
         .after_long_help(additional_help())
+        .arg(dry_run_option("fix"))
         .arg(log_levels_option("fix"))
         .arg(no_ansi_option("fix"))
         .arg(source_option("fix")),
@@ -277,6 +280,7 @@ still inspect and exit 1/0 based on every dependency in your project.
         .about("Ensure that package.json files follow a conventional format, where fields appear in a predictable order and nested fields are ordered alphabetically. Shorthand properties are used where available")
         .after_long_help(additional_help())
         .arg(Arg::new("check").long("check").long_help(cformat!(r#"Lint formatting instead of fixing it"#)).action(clap::ArgAction::SetTrue))
+        .arg(dry_run_option("format"))
         .arg(log_levels_option("format"))
         .arg(no_ansi_option("format"))
         .arg(
@@ -305,13 +309,33 @@ fn get_filters(matches: &ArgMatches) -> Option<GroupSelector> {
   let dependencies = get_patterns(matches, "dependencies");
   let dependency_types = get_patterns(matches, "dependency-types");
   let label = "CLI filters".to_string();
+  let all_packages = &Packages::new();
   let packages = get_patterns(matches, "packages");
   let specifier_types = get_patterns(matches, "specifier-types");
   if dependencies.is_empty() && dependency_types.is_empty() && packages.is_empty() && specifier_types.is_empty() {
     None
   } else {
-    Some(GroupSelector::new(dependencies, dependency_types, label, packages, specifier_types))
+    Some(GroupSelector::new(
+      all_packages,
+      dependencies,
+      dependency_types,
+      label,
+      packages,
+      specifier_types,
+    ))
   }
+}
+
+fn dry_run_option(command: &str) -> Arg {
+  Arg::new("dry-run")
+    .long("dry-run")
+    .long_help(cformat!(
+      r#"Simulate changes without writing them to disk
+
+<bold><underline>Examples:</underline></bold>
+<dim>$</dim> <blue><bold>synopkg {command}</bold> --dry-run</>"#
+    ))
+    .action(clap::ArgAction::SetTrue)
 }
 
 fn get_order_by(matches: &ArgMatches) -> SortBy {

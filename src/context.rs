@@ -6,6 +6,7 @@ use {
     package_json::{FormatMismatch, FormatMismatchVariant, PackageJson},
     packages::Packages,
     semver_group::SemverGroup,
+    specifier::basic_semver::BasicSemver,
     version_group::VersionGroup,
   },
   std::{cell::RefCell, collections::HashMap, rc::Rc},
@@ -17,6 +18,8 @@ pub struct Context {
   pub config: Config,
   /// Every instance in the project
   pub instances: Vec<Rc<Instance>>,
+  /// Index of every local package with a valid name and version
+  pub local_versions: HashMap<String, BasicSemver>,
   /// Every package.json in the project
   pub packages: Packages,
   /// All semver groups
@@ -28,26 +31,51 @@ pub struct Context {
 impl Context {
   pub fn create(config: Config, packages: Packages) -> Self {
     let mut instances = vec![];
-    let semver_groups = config.rcfile.get_semver_groups();
-    let version_groups = config.rcfile.get_version_groups(&packages);
+    let all_dependency_types = config.rcfile.get_all_dependency_types();
+    let dependency_groups = config.rcfile.get_dependency_groups(&packages);
+    let semver_groups = config.rcfile.get_semver_groups(&packages);
+    let mut version_groups = config.rcfile.get_version_groups(&packages);
+    let local_versions = packages.get_local_versions();
 
-    packages.get_all_instances(&config, |instance| {
-      let instance = Rc::new(instance);
-      instances.push(Rc::clone(&instance));
-      if let Some(semver_group) = semver_groups.iter().find(|semver_group| semver_group.selector.can_add(&instance)) {
-        instance.set_semver_group(semver_group);
-      }
-      if let Some(version_group) = version_groups
+    packages.get_all_instances(&all_dependency_types, |mut descriptor| {
+      let dependency_group = dependency_groups
         .iter()
-        .find(|version_group| version_group.selector.can_add(&instance))
-      {
-        version_group.add_instance(instance, &config.cli.filter);
+        .find(|alias| alias.can_add(&all_dependency_types, &descriptor));
+
+      if let Some(group) = dependency_group {
+        descriptor.internal_name = group.label.clone();
+      }
+
+      match &config.cli.filter {
+        Some(cli_group) => {
+          descriptor.matches_cli_filter = cli_group.can_add(&all_dependency_types, &descriptor);
+        }
+        None => descriptor.matches_cli_filter = true,
+      }
+
+      let semver_group = semver_groups
+        .iter()
+        .find(|group| group.selector.can_add(&all_dependency_types, &descriptor));
+      let version_group = version_groups
+        .iter_mut()
+        .find(|group| group.selector.can_add(&all_dependency_types, &descriptor));
+      let instance = Rc::new(Instance::new(descriptor));
+
+      instances.push(Rc::clone(&instance));
+
+      if let Some(group) = semver_group {
+        instance.set_semver_group(group);
+      }
+
+      if let Some(group) = version_group {
+        group.add_instance(instance);
       }
     });
 
     Self {
       config,
       instances,
+      local_versions,
       packages,
       semver_groups,
       version_groups,
@@ -84,6 +112,13 @@ impl Context {
       for instance in self.instances.iter() {
         match *instance.state.borrow() {
           InstanceState::Valid(_) => continue,
+          InstanceState::Suspect(_) => {
+            if self.config.rcfile.strict {
+              std::process::exit(1);
+            } else {
+              continue;
+            }
+          }
           _ => std::process::exit(1),
         }
       }

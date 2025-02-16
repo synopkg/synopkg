@@ -1,6 +1,8 @@
 use {
-  crate::instance::Instance,
+  crate::{dependency_type::DependencyType, instance::InstanceDescriptor, packages::Packages},
   globset::{Glob, GlobMatcher},
+  log::error,
+  std::process,
 };
 
 #[derive(Clone, Debug)]
@@ -49,12 +51,14 @@ pub struct GroupSelector {
 
 impl GroupSelector {
   pub fn new(
+    all_packages: &Packages,
     dependencies: Vec<String>,
     dependency_types: Vec<String>,
     label: String,
     packages: Vec<String>,
     specifier_types: Vec<String>,
   ) -> GroupSelector {
+    let dependencies = with_resolved_keywords(&dependencies, all_packages);
     GroupSelector {
       include_dependencies: create_globs(true, &dependencies),
       exclude_dependencies: create_globs(false, &dependencies),
@@ -68,37 +72,49 @@ impl GroupSelector {
     }
   }
 
-  pub fn can_add(&self, instance: &Instance) -> bool {
-    self.matches_dependency_types(instance)
-      && self.matches_packages(instance)
-      && self.matches_dependencies(instance)
-      && self.matches_specifier_types(instance)
+  pub fn can_add(&self, all_dependency_types: &[DependencyType], descriptor: &InstanceDescriptor) -> bool {
+    self.has_valid_dependency_types(all_dependency_types)
+      && self.matches_dependency_types(descriptor)
+      && self.matches_packages(descriptor)
+      && self.matches_dependencies(descriptor)
+      && self.matches_specifier_types(descriptor)
   }
 
-  pub fn matches_dependency_types(&self, instance: &Instance) -> bool {
+  fn has_valid_dependency_types(&self, all_dependency_types: &[DependencyType]) -> bool {
+    self
+      .include_dependency_types
+      .iter()
+      .chain(self.exclude_dependency_types.iter())
+      .for_each(|expected| {
+        if !all_dependency_types.iter().any(|actual| actual.name == *expected) {
+          error!("dependencyType '{expected}' does not match any of synopkg or your customTypes");
+          error!("check your synopkg config file");
+          process::exit(1);
+        }
+      });
+    true
+  }
+
+  fn matches_dependency_types(&self, descriptor: &InstanceDescriptor) -> bool {
     matches_identifiers(
-      &instance.dependency_type.name,
+      &descriptor.dependency_type.name,
       &self.include_dependency_types,
       &self.exclude_dependency_types,
     )
   }
 
-  pub fn matches_packages(&self, instance: &Instance) -> bool {
-    matches_globs(
-      &instance.package.borrow().get_name_unsafe(),
-      &self.include_packages,
-      &self.exclude_packages,
-    )
+  fn matches_packages(&self, descriptor: &InstanceDescriptor) -> bool {
+    matches_globs(&descriptor.package.borrow().name, &self.include_packages, &self.exclude_packages)
   }
 
-  pub fn matches_dependencies(&self, instance: &Instance) -> bool {
-    matches_globs(&instance.name, &self.include_dependencies, &self.exclude_dependencies)
+  fn matches_dependencies(&self, descriptor: &InstanceDescriptor) -> bool {
+    matches_globs(&descriptor.internal_name, &self.include_dependencies, &self.exclude_dependencies)
   }
 
-  pub fn matches_specifier_types(&self, instance: &Instance) -> bool {
+  fn matches_specifier_types(&self, descriptor: &InstanceDescriptor) -> bool {
     self.include_specifier_types.is_empty()
       || matches_identifiers(
-        &instance.actual_specifier.get_config_identifier(),
+        &descriptor.specifier.get_config_identifier(),
         &self.include_specifier_types,
         &self.exclude_specifier_types,
       )
@@ -143,4 +159,29 @@ fn matches_identifiers(name: &str, includes: &[String], excludes: &[String]) -> 
 
 fn matches_any_identifier(value: &str, identifiers: &[String]) -> bool {
   identifiers.contains(&value.to_string())
+}
+
+/// Resolve keywords such as `$LOCAL` and `!$LOCAL` to their actual values.
+fn with_resolved_keywords(dependency_names: &[String], packages: &Packages) -> Vec<String> {
+  let mut resolved_dependencies: Vec<String> = vec![];
+  for dependency_name in dependency_names.iter() {
+    match dependency_name.as_str() {
+      "$LOCAL" => {
+        for package in packages.all.iter() {
+          let package_name = package.borrow().name.clone();
+          resolved_dependencies.push(package_name);
+        }
+      }
+      "!$LOCAL" => {
+        for package in packages.all.iter() {
+          let package_name = package.borrow().name.clone();
+          resolved_dependencies.push(format!("!{}", package_name));
+        }
+      }
+      _ => {
+        resolved_dependencies.push(dependency_name.clone());
+      }
+    }
+  }
+  resolved_dependencies
 }
