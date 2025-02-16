@@ -1,14 +1,19 @@
 use {
   crate::{
+    cli::Cli,
     dependency_type::DependencyType,
+    group_selector::GroupSelector,
     packages::Packages,
     semver_group::{AnySemverGroup, SemverGroup},
     version_group::{AnyVersionGroup, VersionGroup},
   },
-  atty::Stream,
-  log::debug,
+  log::{debug, error},
   serde::Deserialize,
-  std::{collections::HashMap, io},
+  std::{
+    collections::HashMap,
+    env, io,
+    process::{exit, Command},
+  },
 };
 
 fn empty_custom_types() -> HashMap<String, CustomType> {
@@ -17,6 +22,10 @@ fn empty_custom_types() -> HashMap<String, CustomType> {
 
 fn default_true() -> bool {
   true
+}
+
+fn default_false() -> bool {
+  false
 }
 
 fn default_indent() -> String {
@@ -45,6 +54,7 @@ fn default_sort_exports() -> Vec<String> {
     "module".to_string(),
     "import".to_string(),
     "require".to_string(),
+    "svelte".to_string(),
     "development".to_string(),
     "production".to_string(),
     "script".to_string(),
@@ -75,9 +85,26 @@ pub struct CustomType {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct DependencyGroup {
+  #[serde(default)]
+  pub alias_name: String,
+  #[serde(default)]
+  pub dependencies: Vec<String>,
+  #[serde(default)]
+  pub dependency_types: Vec<String>,
+  #[serde(default)]
+  pub packages: Vec<String>,
+  #[serde(default)]
+  pub specifier_types: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Rcfile {
   #[serde(default = "empty_custom_types")]
   pub custom_types: HashMap<String, CustomType>,
+  #[serde(default)]
+  pub dependency_groups: Vec<DependencyGroup>,
   #[serde(default = "default_true")]
   pub format_bugs: bool,
   #[serde(default = "default_true")]
@@ -96,55 +123,103 @@ pub struct Rcfile {
   pub sort_packages: bool,
   #[serde(default = "default_source")]
   pub source: Vec<String>,
+  #[serde(default = "default_false")]
+  pub strict: bool,
   #[serde(default)]
   pub version_groups: Vec<AnyVersionGroup>,
 }
 
 impl Rcfile {
-  /// Create a new rcfile containing only default values.
-  pub fn new() -> Rcfile {
-    Rcfile {
-      custom_types: empty_custom_types(),
-      format_bugs: default_true(),
-      format_repository: default_true(),
-      indent: default_indent(),
-      semver_groups: vec![],
-      sort_az: default_sort_az(),
-      sort_exports: default_sort_exports(),
-      sort_first: sort_first(),
-      sort_packages: default_true(),
-      source: default_source(),
-      version_groups: vec![],
-    }
-  }
+  /// Until we can port cosmiconfig to Rust, call out to Node.js to get the
+  /// rcfile from the filesystem
+  pub fn from_cosmiconfig(cli: &Cli) -> Rcfile {
+    let require_path = match env::var("COSMICONFIG_REQUIRE_PATH") {
+      Ok(v) => serde_json::to_string(&v).unwrap(),
+      Err(_) => "'cosmiconfig'".to_string(),
+    };
 
-  /// Create a new rcfile from a single line of JSON piped into stdin
-  pub fn from_stdin() -> Rcfile {
-    if atty::is(Stream::Stdin) {
-      debug!("No Rcfile piped into stdin, reverting to defaults");
-      return Rcfile::new();
+    let nodejs_script = format!(
+      r#"
+        require({})
+          .cosmiconfig('synopkg')
+          .search({})
+          .then(res => (res.config ? JSON.stringify(res.config) : '{{}}'))
+          .catch(() => '{{}}')
+          .then(console.log);
+        "#,
+      require_path,
+      serde_json::to_string(&cli.cwd).unwrap()
+    );
+
+    let output = Command::new("node")
+      .arg("-e")
+      .arg(nodejs_script)
+      .current_dir(&cli.cwd)
+      .output()
+      .and_then(|output| {
+        if output.status.success() {
+          String::from_utf8(output.stdout).map_err(|err| io::Error::new(io::ErrorKind::Other, err))
+        } else {
+          Err(io::Error::new(
+            io::ErrorKind::Other,
+            String::from_utf8(output.stderr).expect("Failed to run cosmiconfig"),
+          ))
+        }
+      })
+      .inspect(|json| debug!("raw rcfile contents: '{}'", json.trim()))
+      .map(Rcfile::from_json);
+
+    match output {
+      Ok(rcfile) => rcfile,
+      Err(err) => {
+        error!("There was an error when attempting to locate your synopkg rcfile");
+        error!("Please raise an issue at https://github.com/SynoPkg/synopkg/issues/new?template=bug_report.yaml");
+        error!("{err}");
+        exit(1);
+      }
     }
-    let mut buffer = String::new();
-    let json = io::stdin().read_line(&mut buffer).map_or_else(|_| "{}".to_string(), |_| buffer);
-    if json == "{}" {
-      debug!("Empty Rcfile piped into stdin, reverting to defaults");
-      return Rcfile::new();
-    }
-    debug!("A non-empty Rcfile was piped into stdin");
-    Rcfile::from_json(json)
   }
 
   /// Create a new rcfile from a JSON string or revert to defaults
   pub fn from_json(json: String) -> Rcfile {
-    serde_json::from_str(&json).unwrap_or_else(|_| Rcfile::new())
+    match serde_json::from_str(&json) {
+      Ok(rcfile) => rcfile,
+      Err(err) => {
+        error!("Your synopkg config file failed validation\n  {err}");
+        exit(1);
+      }
+    }
+  }
+
+  /// Create every alias defined in the rcfile.
+  pub fn get_dependency_groups(&self, packages: &Packages) -> Vec<GroupSelector> {
+    self
+      .dependency_groups
+      .iter()
+      .map(|dependency_group_config| {
+        if dependency_group_config.alias_name.is_empty() {
+          error!("A unique aliasName is required for each dependency group");
+          error!("{:?}", dependency_group_config);
+          exit(1);
+        }
+        GroupSelector::new(
+          /* all_packages: */ packages,
+          /* include_dependencies: */ dependency_group_config.dependencies.clone(),
+          /* include_dependency_types: */ dependency_group_config.dependency_types.clone(),
+          /* alias_name: */ dependency_group_config.alias_name.clone(),
+          /* include_packages: */ dependency_group_config.packages.clone(),
+          /* include_specifier_types: */ dependency_group_config.specifier_types.clone(),
+        )
+      })
+      .collect()
   }
 
   /// Create every semver group defined in the rcfile.
-  pub fn get_semver_groups(&self) -> Vec<SemverGroup> {
+  pub fn get_semver_groups(&self, packages: &Packages) -> Vec<SemverGroup> {
     let mut all_groups: Vec<SemverGroup> = vec![];
     all_groups.push(SemverGroup::get_exact_local_specifiers());
     self.semver_groups.iter().for_each(|group_config| {
-      all_groups.push(SemverGroup::from_config(group_config));
+      all_groups.push(SemverGroup::from_config(group_config, packages));
     });
     all_groups.push(SemverGroup::get_catch_all());
     all_groups

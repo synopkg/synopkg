@@ -1,17 +1,23 @@
 use {
-  crate::{cli::Cli, config::Config, dependency_type::Strategy, instance::Instance, package_json::PackageJson, rcfile::Rcfile},
+  crate::{
+    cli::Cli,
+    config::Config,
+    dependency_type::{DependencyType, Strategy},
+    instance::InstanceDescriptor,
+    package_json::PackageJson,
+    rcfile::Rcfile,
+    specifier::{basic_semver::BasicSemver, Specifier},
+  },
   glob::glob,
-  itertools::Itertools,
   log::debug,
   serde::Deserialize,
   serde_json::Value,
   std::{
     cell::RefCell,
-    cmp::Ordering,
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
     rc::Rc,
-    vec::IntoIter,
   },
 };
 
@@ -44,37 +50,36 @@ impl Packages {
     self
   }
 
-  /// Get all packages sorted by their file path
-  pub fn sorted_by_path(&self, cwd: &PathBuf) -> IntoIter<&Rc<RefCell<PackageJson>>> {
-    self.all.iter().sorted_by(|a, b| {
-      let a = a.borrow().get_relative_file_path(cwd);
-      let b = b.borrow().get_relative_file_path(cwd);
-      if a == "package.json" {
-        return Ordering::Less;
-      }
-      if b == "package.json" {
-        return Ordering::Greater;
-      }
-      Ord::cmp(&a, &b)
-    })
-  }
-
   /// Get a package.json file by its name
   pub fn get_by_name(&self, name: &str) -> Option<Rc<RefCell<PackageJson>>> {
+    self.all.iter().find(|package| package.borrow().name == name).map(Rc::clone)
+  }
+
+  /// Return an index of every local package with a valid name and version
+  pub fn get_local_versions(&self) -> HashMap<String, BasicSemver> {
     self
       .all
       .iter()
-      .find(|package| package.borrow().get_name_unsafe() == name)
-      .map(Rc::clone)
+      .filter_map(|package| -> Option<(String, BasicSemver)> {
+        let name = package.borrow().get_prop("/name");
+        let version = package.borrow().get_prop("/version");
+        if let (Some(Value::String(name)), Some(Value::String(version))) = (name, version) {
+          BasicSemver::new(&version.to_string()).map(|semver| (name.to_string(), semver))
+        } else {
+          None
+        }
+      })
+      .collect()
   }
 
   /// Get every instance of a dependency from every package.json file
-  pub fn get_all_instances<F>(&self, config: &Config, mut on_instance: F)
+  pub fn get_all_instances<F>(&self, all_dependency_types: &Vec<DependencyType>, mut on_instance: F)
   where
-    F: FnMut(Instance),
+    F: FnMut(InstanceDescriptor),
   {
+    let local_versions = self.get_local_versions();
     for package in self.all.iter() {
-      for dependency_type in &config.rcfile.get_all_dependency_types() {
+      for dependency_type in all_dependency_types {
         match dependency_type.strategy {
           Strategy::NameAndVersionProps => {
             if let (Some(Value::String(name)), Some(Value::String(raw_specifier))) = (
@@ -89,46 +94,54 @@ impl Packages {
                 }
               }),
             ) {
-              on_instance(Instance::new(
-                name.to_string(),
-                raw_specifier.to_string(),
-                dependency_type,
-                Rc::clone(package),
-              ));
+              on_instance(InstanceDescriptor {
+                dependency_type: dependency_type.clone(),
+                internal_name: name.to_string(),
+                matches_cli_filter: false,
+                name: name.to_string(),
+                package: Rc::clone(package),
+                specifier: Specifier::new(&raw_specifier, local_versions.get(&name)),
+              });
             }
           }
           Strategy::NamedVersionString => {
             if let Some(Value::String(specifier)) = package.borrow().get_prop(&dependency_type.path) {
               if let Some((name, raw_specifier)) = specifier.split_once('@') {
-                on_instance(Instance::new(
-                  name.to_string(),
-                  raw_specifier.to_string(),
-                  dependency_type,
-                  Rc::clone(package),
-                ));
+                on_instance(InstanceDescriptor {
+                  dependency_type: dependency_type.clone(),
+                  internal_name: name.to_string(),
+                  matches_cli_filter: false,
+                  name: name.to_string(),
+                  package: Rc::clone(package),
+                  specifier: Specifier::new(raw_specifier, local_versions.get(name)),
+                });
               }
             }
           }
           Strategy::UnnamedVersionString => {
             if let Some(Value::String(raw_specifier)) = package.borrow().get_prop(&dependency_type.path) {
-              on_instance(Instance::new(
-                dependency_type.name.clone(),
-                raw_specifier.to_string(),
-                dependency_type,
-                Rc::clone(package),
-              ));
+              on_instance(InstanceDescriptor {
+                dependency_type: dependency_type.clone(),
+                internal_name: dependency_type.name.clone(),
+                matches_cli_filter: false,
+                name: dependency_type.name.clone(),
+                package: Rc::clone(package),
+                specifier: Specifier::new(&raw_specifier, local_versions.get(&dependency_type.name)),
+              });
             }
           }
           Strategy::VersionsByName => {
             if let Some(Value::Object(versions_by_name)) = package.borrow().get_prop(&dependency_type.path) {
               for (name, raw_specifier) in versions_by_name {
-                if let Value::String(version) = raw_specifier {
-                  on_instance(Instance::new(
-                    name.to_string(),
-                    version.to_string(),
-                    dependency_type,
-                    Rc::clone(package),
-                  ));
+                if let Value::String(raw_specifier) = raw_specifier {
+                  on_instance(InstanceDescriptor {
+                    dependency_type: dependency_type.clone(),
+                    internal_name: name.to_string(),
+                    matches_cli_filter: false,
+                    name: name.to_string(),
+                    package: Rc::clone(package),
+                    specifier: Specifier::new(&raw_specifier, local_versions.get(&name)),
+                  });
                 }
               }
             }

@@ -26,7 +26,7 @@ pub struct VersionGroup {
   /// Group instances of each dependency together for comparison.
   pub dependencies: RefCell<BTreeMap<String, Dependency>>,
   /// Does every instance match the filter options provided via the CLI?
-  pub matches_cli_filter: RefCell<bool>,
+  pub matches_cli_filter: bool,
   /// The version to pin all instances to when variant is `Pinned`
   pub pin_version: Option<Specifier>,
   /// Data to determine which instances should be added to this group
@@ -43,9 +43,10 @@ impl VersionGroup {
   pub fn get_catch_all() -> VersionGroup {
     VersionGroup {
       dependencies: RefCell::new(BTreeMap::new()),
-      matches_cli_filter: RefCell::new(false),
+      matches_cli_filter: false,
       pin_version: None,
       selector: GroupSelector::new(
+        /* all_packages: */ &Packages::new(),
         /* include_dependencies: */ vec![],
         /* include_dependency_types: */ vec![],
         /* label: */ "Default Version Group".to_string(),
@@ -57,22 +58,19 @@ impl VersionGroup {
     }
   }
 
-  pub fn add_instance(&self, instance: Rc<Instance>, cli_filter: &Option<GroupSelector>) {
+  pub fn add_instance(&mut self, instance: Rc<Instance>) {
     let mut dependencies = self.dependencies.borrow_mut();
-    let dependency = dependencies.entry(instance.name.clone()).or_insert_with(|| {
+    let dependency = dependencies.entry(instance.internal_name.clone()).or_insert_with(|| {
       Dependency::new(
-        /* name: */ instance.name.clone(),
+        /* internal_name: */ instance.internal_name.clone(),
         /* variant: */ self.variant.clone(),
         /* pin_version: */ self.pin_version.clone(),
         /* snap_to: */ self.snap_to.clone(),
       )
     });
-    if let Some(cli_group) = cli_filter {
-      if cli_group.can_add(&instance) {
-        *self.matches_cli_filter.borrow_mut() = true;
-        *dependency.matches_cli_filter.borrow_mut() = true;
-        *instance.matches_cli_filter.borrow_mut() = true;
-      }
+    if instance.matches_cli_filter {
+      self.matches_cli_filter = true;
+      dependency.matches_cli_filter = true;
     }
     dependency.add_instance(Rc::clone(&instance));
     std::mem::drop(dependencies);
@@ -81,8 +79,8 @@ impl VersionGroup {
   /// Create a single version group from a config item from the rcfile.
   pub fn from_config(group: &AnyVersionGroup, packages: &Packages) -> VersionGroup {
     let selector = GroupSelector::new(
-      /* include_dependencies: */
-      with_resolved_keywords(&group.dependencies, packages),
+      /* all_packages: */ packages,
+      /* include_dependencies: */ group.dependencies.clone(),
       /* include_dependency_types: */ group.dependency_types.clone(),
       /* label: */ group.label.clone(),
       /* include_packages: */ group.packages.clone(),
@@ -92,7 +90,7 @@ impl VersionGroup {
     if let Some(true) = group.is_banned {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
-        matches_cli_filter: RefCell::new(false),
+        matches_cli_filter: false,
         pin_version: None,
         selector,
         snap_to: None,
@@ -102,7 +100,7 @@ impl VersionGroup {
     if let Some(true) = group.is_ignored {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
-        matches_cli_filter: RefCell::new(false),
+        matches_cli_filter: false,
         pin_version: None,
         selector,
         snap_to: None,
@@ -112,8 +110,8 @@ impl VersionGroup {
     if let Some(pin_version) = &group.pin_version {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
-        matches_cli_filter: RefCell::new(false),
-        pin_version: Some(Specifier::new(pin_version)),
+        matches_cli_filter: false,
+        pin_version: Some(Specifier::new(pin_version, None)),
         selector,
         snap_to: None,
         variant: VersionGroupVariant::Pinned,
@@ -123,7 +121,7 @@ impl VersionGroup {
       if policy == "sameRange" {
         return VersionGroup {
           dependencies: RefCell::new(BTreeMap::new()),
-          matches_cli_filter: RefCell::new(false),
+          matches_cli_filter: false,
           pin_version: None,
           selector,
           snap_to: None,
@@ -137,7 +135,7 @@ impl VersionGroup {
     if let Some(snap_to) = &group.snap_to {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
-        matches_cli_filter: RefCell::new(false),
+        matches_cli_filter: false,
         pin_version: None,
         selector,
         snap_to: Some(
@@ -158,7 +156,7 @@ impl VersionGroup {
     if let Some(prefer_version) = &group.prefer_version {
       return VersionGroup {
         dependencies: RefCell::new(BTreeMap::new()),
-        matches_cli_filter: RefCell::new(false),
+        matches_cli_filter: false,
         pin_version: None,
         selector,
         snap_to: None,
@@ -171,7 +169,7 @@ impl VersionGroup {
     }
     VersionGroup {
       dependencies: RefCell::new(BTreeMap::new()),
-      matches_cli_filter: RefCell::new(false),
+      matches_cli_filter: false,
       pin_version: None,
       selector,
       snap_to: None,
@@ -200,13 +198,6 @@ impl VersionGroup {
   }
 }
 
-struct SnapToMismatches {
-  pub instance_ids: Vec<String>,
-  pub actual_specifier: Specifier,
-  pub expected_specifier: Specifier,
-  pub snap_to_instance_id: String,
-}
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AnyVersionGroup {
@@ -227,29 +218,4 @@ pub struct AnyVersionGroup {
   pub policy: Option<String>,
   pub snap_to: Option<Vec<String>>,
   pub prefer_version: Option<String>,
-}
-
-/// Resolve keywords such as `$LOCAL` and `!$LOCAL` to their actual values.
-fn with_resolved_keywords(dependency_names: &[String], packages: &Packages) -> Vec<String> {
-  let mut resolved_dependencies: Vec<String> = vec![];
-  for dependency_name in dependency_names.iter() {
-    match dependency_name.as_str() {
-      "$LOCAL" => {
-        for package in packages.all.iter() {
-          let package_name = package.borrow().get_name_unsafe();
-          resolved_dependencies.push(package_name);
-        }
-      }
-      "!$LOCAL" => {
-        for package in packages.all.iter() {
-          let package_name = package.borrow().get_name_unsafe();
-          resolved_dependencies.push(format!("!{}", package_name));
-        }
-      }
-      _ => {
-        resolved_dependencies.push(dependency_name.clone());
-      }
-    }
-  }
-  resolved_dependencies
 }
