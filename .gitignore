@@ -1,12 +1,13 @@
+**/*.rs.bk
+*.log
+*.log.*
 .astro/
 .DS_Store
 .idea
-*.log
-*.log.*
-coverage
+coverage/
 dist/
 node_modules/
+target/
 
-# v14 branch
-npm
-target
+# Generated packages published to npm
+npm/packages

@@ -1,15 +1,5 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "files": {
-    "ignore": [
-      "**/*.astro",
-      "**/coverage",
-      "**/dist",
-      "package.json",
-      "npm",
-      "target"
-    ]
-  },
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
@@ -24,35 +14,7 @@
     "enabled": true
   },
   "linter": {
-    "enabled": true,
-    "rules": {
-      "all": true,
-      "complexity": {
-        "noExcessiveCognitiveComplexity": "off",
-        "noExcessiveNestedTestSuites": "off",
-        "noForEach": "off",
-        "noStaticOnlyClass": "off"
-      },
-      "correctness": {
-        "noNodejsModules": "off"
-      },
-      "style": {
-        "noNamespace": "off",
-        "noNamespaceImport": "off",
-        "useNamingConvention": "off"
-      },
-      "suspicious": {
-        "noConsole": "off",
-        "noControlCharactersInRegex": "off",
-        "noEmptyBlockStatements": "off",
-        "noExplicitAny": "off"
-      }
-    }
-  },
-  "css": {
-    "formatter": {
-      "quoteStyle": "single"
-    }
+    "enabled": true
   },
   "javascript": {
     "formatter": {
@@ -66,47 +28,5 @@
       "quoteStyle": "single",
       "attributePosition": "auto"
     }
-  },
-  "overrides": [
-    {
-      "include": [".synopkgrc.js", "*.config.*"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noDefaultExport": "off"
-          }
-        }
-      }
-    },
-    {
-      "include": ["test/lib/create-scenario.ts"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noEmptyBlockStatements": "off"
-          }
-        }
-      }
-    },
-    {
-      "include": ["**/*.spec.ts"],
-      "linter": {
-        "rules": {
-          "performance": {
-            "useTopLevelRegex": "off"
-          }
-        }
-      }
-    },
-    {
-      "include": ["site/**"],
-      "linter": {
-        "rules": {
-          "correctness": {
-            "noUndeclaredDependencies": "off"
-          }
-        }
-      }
-    }
-  ]
+  }
 }

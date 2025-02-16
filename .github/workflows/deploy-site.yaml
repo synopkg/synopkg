@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9.12.2
+          version: 8
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -44,4 +44,4 @@ jobs:
           # The GH actions bot is used by default if you didn't specify the two fields.
           # You can swap them out with your own user credentials.
           user_name: github-actions[bot]
-          user_email: 118260833+github-actions[bot]@users.noreply.github.com
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com

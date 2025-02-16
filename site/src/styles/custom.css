@@ -1,36 +1,29 @@
-/* Dark mode colors - Gray/Dark Theme */
+/* Dark mode colors. */
 :root {
-  --sl-color-accent-low: #1c1c1e;   /* Dark charcoal */
-  --sl-color-accent: #343438;       /* Neutral dark gray */
-  --sl-color-accent-medium: #4a4a50; /* Mid-tone gray */
-  --sl-color-accent-high: #6b6b75;   /* Light gray */
-  --sl-color-accent-contrast: #9c9ca3; /* High contrast gray */
-
+  --sl-color-accent-low: #072d00;
+  --sl-color-accent: #247f00;
+  --sl-color-accent-high: #aad7a0;
   --sl-color-white: #ffffff;
-  --sl-color-gray-1: #e0e0e3;
-  --sl-color-gray-2: #b0b0b3;
-  --sl-color-gray-3: #808085;
-  --sl-color-gray-4: #505055;
-  --sl-color-gray-5: #303035;
-  --sl-color-gray-6: #1a1a1e;
-  --sl-color-black: #0f0f12;
+  --sl-color-gray-1: #eaf0e8;
+  --sl-color-gray-2: #bdc4bb;
+  --sl-color-gray-3: #82907f;
+  --sl-color-gray-4: #4f5c4d;
+  --sl-color-gray-5: #303c2d;
+  --sl-color-gray-6: #1f2a1c;
+  --sl-color-black: #151a13;
 }
-
-/* Light mode colors - Gray/Dark Theme */
+/* Light mode colors. */
 :root[data-theme='light'] {
-  --sl-color-accent-low: #c2c2c5;  /* Light neutral gray */
-  --sl-color-accent: #7a7a80;      /* Mid-gray */
-  --sl-color-accent-medium: #606066; /* Slightly darker */
-  --sl-color-accent-high: #3e3e42;  /* Deep gray */
-  --sl-color-accent-contrast: #1c1c1e; /* Almost black */
-
-  --sl-color-white: #0f0f12;
-  --sl-color-gray-1: #1a1a1e;
-  --sl-color-gray-2: #303035;
-  --sl-color-gray-3: #505055;
-  --sl-color-gray-4: #808085;
-  --sl-color-gray-5: #b0b0b3;
-  --sl-color-gray-6: #e0e0e3;
-  --sl-color-gray-7: #f4f4f7;
+  --sl-color-accent-low: #c0e2b8;
+  --sl-color-accent: #258100;
+  --sl-color-accent-high: #0d3e00;
+  --sl-color-white: #151a13;
+  --sl-color-gray-1: #1f2a1c;
+  --sl-color-gray-2: #303c2d;
+  --sl-color-gray-3: #4f5c4d;
+  --sl-color-gray-4: #82907f;
+  --sl-color-gray-5: #bdc4bb;
+  --sl-color-gray-6: #eaf0e8;
+  --sl-color-gray-7: #f4f7f3;
   --sl-color-black: #ffffff;
 }

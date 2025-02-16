@@ -1,21 +1,11 @@
 {
-  "code_actions_on_format": {
-    "source.fixAll.biome": true,
-    "source.organizeImports.biome": true
-  },
-  "ensure_final_newline_on_save": true,
-  "formatter": {
-    "language_server": {
-      "name": "biome"
-    }
-  },
   "lsp": {
-    "biome": {
-      "settings": {
-        "config_path": "../biome.json",
-        "require_config_file": true
+    "rust-analyzer": {
+      "initialization_options": {
+        "check": {
+          "command": "clippy"
+        }
       }
     }
-  },
-  "remove_trailing_whitespace_on_save": true
+  }
 }

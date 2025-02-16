@@ -60,6 +60,34 @@ export default defineConfig({
         {
           tag: 'meta',
           attrs: {
+            name: 'twitter:image',
+            content: '/synopkg/social-card.jpg',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image',
+            content: '/synopkg/social-card.jpg',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image:width',
+            content: '1200',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image:height',
+            content: '675',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
             name: 'twitter:creator',
             content: '@fold_left',
           },
