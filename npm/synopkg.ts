@@ -2,7 +2,11 @@ export interface RcFile {
   /** @see https://synopkg.github.io/synopkg/integrations/json-schema */
   $schema?: string;
   /** @see https://synopkg.github.io/synopkg/config/custom-types */
-  customTypes?: Record<string, CustomType.Any>;
+  customTypes?: {
+    [name: string]: CustomType.Any;
+  };
+  /** @see https://synopkg.github.io/synopkg/config/dependency-groups */
+  dependencyGroups?: DependencyGroup[];
   /** @see https://synopkg.github.io/synopkg/config/format-bugs */
   formatBugs?: boolean;
   /** @see https://synopkg.github.io/synopkg/config/format-repository */
@@ -38,7 +42,7 @@ export interface RcFile {
   specifierTypes?: never;
 }
 
-export interface DependencyGroup {
+export interface GroupSelector {
   /** @see https://synopkg.github.io/synopkg/config/version-groups/standard/#dependencies */
   dependencies?: string[];
   /** @see https://synopkg.github.io/synopkg/config/version-groups/standard/#dependencytypes */
@@ -51,12 +55,25 @@ export interface DependencyGroup {
   specifierTypes?: SpecifierType[];
 }
 
+export interface DependencyGroup {
+  /** @see https://synopkg.github.io/synopkg/config/dependency-groups/#aliasname */
+  aliasName: string;
+  /** @see https://synopkg.github.io/synopkg/config/dependency-groups/#dependencies */
+  dependencies?: string[];
+  /** @see https://synopkg.github.io/synopkg/config/dependency-groups/#dependencytypes */
+  dependencyTypes?: DependencyType[];
+  /** @see https://synopkg.github.io/synopkg/config/dependency-groups/#packages */
+  packages?: string[];
+  /** @see https://synopkg.github.io/synopkg/config/dependency-groups/#specifiertypes */
+  specifierTypes?: SpecifierType[];
+}
+
 namespace SemverGroup {
-  export interface Ignored extends DependencyGroup {
+  export interface Ignored extends GroupSelector {
     /** @see https://synopkg.github.io/synopkg/config/semver-groups/ignored/#isignored */
     isIgnored: true;
   }
-  export interface WithRange extends DependencyGroup {
+  export interface WithRange extends GroupSelector {
     /** @see https://synopkg.github.io/synopkg/config/semver-groups/with-range/#range */
     range: SemverRange;
   }
@@ -64,29 +81,29 @@ namespace SemverGroup {
 }
 
 namespace VersionGroup {
-  export interface Banned extends DependencyGroup {
+  export interface Banned extends GroupSelector {
     /** @see https://synopkg.github.io/synopkg/config/version-groups/banned/#isbanned */
     isBanned: true;
   }
-  export interface Ignored extends DependencyGroup {
+  export interface Ignored extends GroupSelector {
     /** @see https://synopkg.github.io/synopkg/config/version-groups/ignored/#isignored */
     isIgnored: true;
   }
-  export interface Pinned extends DependencyGroup {
+  export interface Pinned extends GroupSelector {
     /** @see https://synopkg.github.io/synopkg/config/version-groups/pinned/#pinversion */
     pinVersion: string;
   }
-  export interface SnappedTo extends DependencyGroup {
+  export interface SnappedTo extends GroupSelector {
     /** @see https://synopkg.github.io/synopkg/config/version-groups/snapped-to/#snapto */
     snapTo: string[];
   }
-  export interface SameRange extends DependencyGroup {
+  export interface SameRange extends GroupSelector {
     /** @see https://synopkg.github.io/synopkg/config/version-groups/same-range/#policy */
-    policy: "sameRange";
+    policy: 'sameRange';
   }
-  export interface Standard extends DependencyGroup {
+  export interface Standard extends GroupSelector {
     /** @see https://synopkg.github.io/synopkg/config/version-groups/lowest-version/#preferversion */
-    preferVersion?: "highestSemver" | "lowestSemver";
+    preferVersion?: 'highestSemver' | 'lowestSemver';
   }
   export type Any =
     | Banned
@@ -104,25 +121,25 @@ namespace CustomType {
     /** @see https://synopkg.github.io/synopkg/config/custom-types/#name */
     path: string;
     /** @see https://synopkg.github.io/synopkg/config/custom-types/#namestrategy */
-    strategy: "name~version";
+    strategy: 'name~version';
   }
   export interface NamedVersionString {
     /** @see https://synopkg.github.io/synopkg/config/custom-types/#name */
     path: string;
     /** @see https://synopkg.github.io/synopkg/config/custom-types/#namestrategy */
-    strategy: "name@version";
+    strategy: 'name@version';
   }
   export interface UnnamedVersionString {
     /** @see https://synopkg.github.io/synopkg/config/custom-types/#name */
     path: string;
     /** @see https://synopkg.github.io/synopkg/config/custom-types/#namestrategy */
-    strategy: "version";
+    strategy: 'version';
   }
   export interface VersionsByName {
     /** @see https://synopkg.github.io/synopkg/config/custom-types/#name */
     path: string;
     /** @see https://synopkg.github.io/synopkg/config/custom-types/#namestrategy */
-    strategy: "versionsByName";
+    strategy: 'versionsByName';
   }
   export type Any =
     | NameAndVersionProps
@@ -131,35 +148,35 @@ namespace CustomType {
     | VersionsByName;
 }
 
-type SemverRange = "" | "*" | ">" | ">=" | ".x" | "<" | "<=" | "^" | "~";
+type SemverRange = '' | '*' | '>' | '>=' | '.x' | '<' | '<=' | '^' | '~';
 
 type DependencyType =
-  | "dev"
-  | "local"
-  | "overrides"
-  | "peer"
-  | "pnpmOverrides"
-  | "prod"
-  | "resolutions"
+  | 'dev'
+  | 'local'
+  | 'overrides'
+  | 'peer'
+  | 'pnpmOverrides'
+  | 'prod'
+  | 'resolutions'
   | AnyString;
 
 type SpecifierType =
-  | "alias"
-  | "exact"
-  | "file"
-  | "git"
-  | "latest"
-  | "major"
-  | "minor"
-  | "missing"
-  | "range"
-  | "range-complex"
-  | "range-major"
-  | "range-minor"
-  | "tag"
-  | "unsupported"
-  | "url"
-  | "workspace-protocol"
+  | 'alias'
+  | 'exact'
+  | 'file'
+  | 'git'
+  | 'latest'
+  | 'major'
+  | 'minor'
+  | 'missing'
+  | 'range'
+  | 'range-complex'
+  | 'range-major'
+  | 'range-minor'
+  | 'tag'
+  | 'unsupported'
+  | 'url'
+  | 'workspace-protocol'
   | AnyString;
 
 type AnyString = string & {};
