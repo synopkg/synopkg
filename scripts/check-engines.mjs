@@ -1,9 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { globbySync } from 'globby';
 import { satisfies } from 'semver';
+import root from '../package.json' assert { type: 'json' };
 
-const rootPath = new URL('../package.json', import.meta.url).pathname;
-const root = JSON.parse(readFileSync(rootPath, 'utf8'));
 const synopkgEngine = root.engines.node.replace('>=', '');
 
 const unsatisfiedDependencies = globbySync('node_modules/**/package.json')
@@ -25,11 +24,11 @@ const unsatisfiedDependencies = globbySync('node_modules/**/package.json')
   .filter(result => !result.isSatisfied);
 
 if (unsatisfiedDependencies.length > 0) {
-  console.error(
-    'The following dependencies have incompatible engines:',
-    unsatisfiedDependencies,
-  );
+  console.error('The following dependencies do not satisfy the required engine version:');
+  unsatisfiedDependencies.forEach(dep => {
+    console.error(`- ${dep.name}: expected ${dep.expected}, but found ${dep.actual}`);
+  });
   process.exit(1);
 } else {
-  console.info('All dependencies have compatible engines.');
+  console.log('All dependencies satisfy the required engine version.');
 }

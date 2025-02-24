@@ -18,6 +18,7 @@ import { IoTag } from '../io/index.js';
 import { toFormattedJson } from '../io/to-formatted-json.js';
 import { writeIfChanged } from '../io/write-if-changed.js';
 import { withLogger } from '../lib/with-logger.js';
+import { formatCssWithSingleQuote } from '../lib/format-css-with-single-quote.js';
 
 interface Input {
   io: Io;
@@ -67,6 +68,7 @@ export function pipeline(ctx: Ctx): Effect.Effect<Ctx> {
   const sortPackages = config.rcFile.sortPackages !== false;
   const formatBugs = config.rcFile.formatBugs !== false;
   const formatRepository = config.rcFile.formatRepository !== false;
+  const formatCss = config.rcFile.formatCssWithSingleQuote !== false;
 
   packageJsonFiles.forEach(file => {
     const { contents } = file.jsonFile;
@@ -106,6 +108,10 @@ export function pipeline(ctx: Ctx): Effect.Effect<Ctx> {
       const otherKeys = Object.keys(contents);
       const sortedKeys = new Set([...sortFirst, ...otherKeys]);
       sortObject(sortedKeys, contents);
+    }
+
+    if (formatCss) {
+      formatCssWithSingleQuote(file);
     }
 
     file.nextJson = toFormattedJson(ctx, file);
