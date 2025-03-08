@@ -2,23 +2,23 @@
   "name": "synopkg",
   "description": "Consistent dependency versions in large JavaScript Monorepos",
   "version": "14.0.0-alpha.10",
-  "author": "Md Sulaiman <dev.sulaiman@icloud.com>",
+  "author": "Md Sulaiman <dev.sulaiman@icloud.com> (https://github.com/SynoPkg)",
   "bugs": "https://github.com/SynoPkg/synopkg/issues",
   "dependencies": {
     "cosmiconfig": "^9.0.0",
-    "typescript": "^5.7.3"
+    "typescript": "5.7.3"
   },
   "devDependencies": {
-    "@release-it/conventional-changelog": "^10.0.0",
-    "auto-changelog": "^2.5.0",
-    "release-it": "^18.1.2",
-    "ts-json-schema-generator": "^2.3.0"
+    "@release-it/conventional-changelog": "10.0.0",
+    "auto-changelog": "2.5.0",
+    "release-it": "18.1.2",
+    "ts-json-schema-generator": "2.3.0"
   },
   "engines": {
     "node": ">=14.17.0"
   },
   "funding": "https://github.com/sponsors/SynoPkg",
-  "homepage": "https://github.com/synopkg/synopkg#readme",
+  "homepage": "https://github.com/SynoPkg/synopkg#readme",
   "keywords": [
     "dependencies",
     "exact-versions",
@@ -40,5 +40,6 @@
     "yarn"
   ],
   "license": "MIT",
-  "repository": "synopkg/synopkg"
+  "repository": "SynoPkg/synopkg",
+  "packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee"
 }

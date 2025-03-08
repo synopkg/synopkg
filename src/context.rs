@@ -9,7 +9,11 @@ use {
     specifier::basic_semver::BasicSemver,
     version_group::VersionGroup,
   },
-  std::{cell::RefCell, collections::HashMap, rc::Rc},
+  std::{
+    cell::RefCell,
+    collections::{BTreeMap, HashMap},
+    rc::Rc,
+  },
 };
 
 #[derive(Debug)]
@@ -24,6 +28,8 @@ pub struct Context {
   pub packages: Packages,
   /// All semver groups
   pub semver_groups: Vec<SemverGroup>,
+  /// Index of all available versions from the remote npm registry
+  pub update_versions: BTreeMap<String, Vec<BasicSemver>>,
   /// All version groups, their dependencies, and their instances
   pub version_groups: Vec<VersionGroup>,
 }
@@ -36,6 +42,7 @@ impl Context {
     let semver_groups = config.rcfile.get_semver_groups(&packages);
     let mut version_groups = config.rcfile.get_version_groups(&packages);
     let local_versions = packages.get_local_versions();
+    let update_versions = BTreeMap::new();
 
     packages.get_all_instances(&all_dependency_types, |mut descriptor| {
       let dependency_group = dependency_groups
@@ -77,6 +84,7 @@ impl Context {
       local_versions,
       packages,
       semver_groups,
+      update_versions,
       version_groups,
     }
   }
