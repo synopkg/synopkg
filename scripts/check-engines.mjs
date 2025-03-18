@@ -3,7 +3,7 @@ import { globbySync } from 'globby';
 import intersects from 'semver/ranges/intersects.js';
 import root from '../package.json' assert { type: 'json' };
 
-const synopkgEngine = = root.engines.node;
+const synopkgEngine = root.engines.node;
 
 const unsatisfiedDependencies = globbySync('node_modules/**/package.json')
   .map(filePath => readFileSync(filePath, 'utf8'))
