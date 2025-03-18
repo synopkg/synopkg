@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { globbySync } from 'globby';
-import { satisfies } from 'semver';
+import intersects from 'semver/ranges/intersects.js';
 import root from '../package.json' assert { type: 'json' };
 
-const synopkgEngine = root.engines.node.replace('>=', '');
+const synopkgEngine = root.engines.node;
 
 const unsatisfiedDependencies = globbySync('node_modules/**/package.json')
   .map(filePath => readFileSync(filePath, 'utf8'))
@@ -13,7 +13,7 @@ const unsatisfiedDependencies = globbySync('node_modules/**/package.json')
   .map(file => {
     const name = file.name;
     const dependencyEngine = file.engines.node;
-    const isSatisfied = satisfies(synopkgEngine, dependencyEngine);
+    const isSatisfied = intersects(synopkgEngine, dependencyEngine);
     return {
       name,
       expected: synopkgEngine,
