@@ -4,7 +4,8 @@
 const config = {
   semverGroups: [
     {
-      range: '',
+      dependencyTypes: ['prod', 'dev'],
+      range: '^',
     },
   ],
   versionGroups: [
@@ -22,6 +23,11 @@ const config = {
       label: 'v18 does not support Node 18',
       dependencies: ['release-it'],
       pinVersion: '17.11.0',
+    },
+    {
+      label: '0.3.0 has issues',
+      dependencies: ['tightrope'],
+      pinVersion: '0.2.0',
     },
   ],
 };
