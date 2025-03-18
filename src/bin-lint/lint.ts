@@ -14,7 +14,6 @@ import type { Io } from '../io/index.js';
 import { IoTag } from '../io/index.js';
 import { toFormattedJson } from '../io/to-formatted-json.js';
 import { withLogger } from '../lib/with-logger.js';
-import { checkCssFormatting } from '../lib/check-css-formatting.js';
 
 interface Input {
   io: Io;
@@ -64,16 +63,6 @@ export function lint({ io, cli, errorHandlers = defaultErrorHandlers }: Input) {
         if (ctx.config.rcFile.lintSemverRanges !== false) {
           yield* $(Effect.logInfo(chalk`{yellow Semver Ranges}`));
           yield* $(lintSemverRanges(ctx, io, errorHandlers));
-        }
-        return ctx;
-      }),
-    ),
-    // CSS Formatting
-    Effect.flatMap(ctx =>
-      Effect.gen(function* ($) {
-        if (ctx.config.rcFile.lintCssFormatting !== false) {
-          yield* $(Effect.logInfo(chalk`{yellow CSS Formatting}`));
-          yield* $(checkCssFormatting(ctx));
         }
         return ctx;
       }),
