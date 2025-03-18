@@ -1,9 +1,9 @@
 /* Dark mode colors - Gray/Dark Theme */
 :root {
-  --sl-color-accent-low: #1c1c1e;   /* Dark charcoal */
-  --sl-color-accent: #343438;       /* Neutral dark gray */
+  --sl-color-accent-low: #1c1c1e; /* Dark charcoal */
+  --sl-color-accent: #343438; /* Neutral dark gray */
   --sl-color-accent-medium: #4a4a50; /* Mid-tone gray */
-  --sl-color-accent-high: #6b6b75;   /* Light gray */
+  --sl-color-accent-high: #6b6b75; /* Light gray */
   --sl-color-accent-contrast: #9c9ca3; /* High contrast gray */
 
   --sl-color-white: #ffffff;
@@ -18,10 +18,10 @@
 
 /* Light mode colors - Gray/Dark Theme */
 :root[data-theme='light'] {
-  --sl-color-accent-low: #c2c2c5;  /* Light neutral gray */
-  --sl-color-accent: #7a7a80;      /* Mid-gray */
+  --sl-color-accent-low: #c2c2c5; /* Light neutral gray */
+  --sl-color-accent: #7a7a80; /* Mid-gray */
   --sl-color-accent-medium: #606066; /* Slightly darker */
-  --sl-color-accent-high: #3e3e42;  /* Deep gray */
+  --sl-color-accent-high: #3e3e42; /* Deep gray */
   --sl-color-accent-contrast: #1c1c1e; /* Almost black */
 
   --sl-color-white: #0f0f12;

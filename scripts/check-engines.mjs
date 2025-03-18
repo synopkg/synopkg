@@ -24,11 +24,14 @@ const unsatisfiedDependencies = globbySync('node_modules/**/package.json')
   .filter(result => !result.isSatisfied);
 
 if (unsatisfiedDependencies.length > 0) {
-  console.error('The following dependencies do not satisfy the required engine version:');
+  console.error(
+    'The following dependencies do not satisfy the required engine version:',
+  );
   unsatisfiedDependencies.forEach(dep => {
-    console.error(`- ${dep.name}: expected ${dep.expected}, but found ${dep.actual}`);
+    console.error(
+      `- ${dep.name}: expected ${dep.expected}, but found ${dep.actual}`,
+    );
   });
   process.exit(1);
 } else {
-  console.log('All dependencies satisfy the required engine version.');
 }
