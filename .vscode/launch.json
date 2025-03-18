@@ -62,15 +62,6 @@
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/ts-node",
       "args": ["--transpileOnly", "${workspaceRoot}/src/bin-set-semver-ranges"]
-    },
-    {
-      "type": "node",
-      "cwd": "${workspaceRoot}",
-      "request": "launch",
-      "name": "Debug language server",
-      "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/ts-node",
-      "args": ["--transpileOnly", "${workspaceRoot}/src/language-server"]
     }
   ]
 }
