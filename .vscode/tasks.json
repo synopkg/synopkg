@@ -53,34 +53,6 @@
       },
       "problemMatcher": [],
       "type": "shell"
-    },
-    {
-      "label": "Run Language Server",
-      "type": "shell",
-      "command": "${workspaceFolder}/node_modules/.bin/ts-node",
-      "args": ["--transpileOnly", "${workspaceFolder}/src/language-server"],
-      "group": "build",
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Debug Language Server",
-      "type": "shell",
-      "command": "${workspaceFolder}/node_modules/.bin/ts-node",
-      "args": [
-        "--transpileOnly",
-        "--inspect-brk",
-        "${workspaceFolder}/src/language-server"
-      ],
-      "group": "build",
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "always"
-      },
-      "problemMatcher": []
     }
   ]
 }
