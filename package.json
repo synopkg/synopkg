@@ -15,6 +15,11 @@
     "synopkg-set-semver-ranges": "dist/bin-set-semver-ranges/index.js",
     "synopkg-update": "dist/bin-update/index.js"
   },
+  "contributors": [
+    "NxPKG (https://github.com/nxpkg)",
+    "Md Sulaiman (https://github.com/gitworkflows)",
+    "khulnasoft-bot (https://github.com/khulnasoft-bot)"
+  ],
   "bugs": "https://github.com/synopkg/synopkg/issues",
   "dependencies": {
     "@effect/schema": "^0.75.5",
